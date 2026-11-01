@@ -28,7 +28,8 @@ export default function App(){
   const [health,setHealth]=useState(false);
   const [provider,setProvider]=useState<{configured:boolean;model:string}|null>(null);
   const [memories,setMemories]=useState<Memory[]>([]);
-  const [candidates,setCandidates]=useState<Candidate[]>([]);\n  const [emotionalState,setEmotionalState]=useState<EmotionalState|null>(null);
+  const [candidates,setCandidates]=useState<Candidate[]>([]);
+  const [emotionalState,setEmotionalState]=useState<EmotionalState|null>(null);
   const [form,setForm]=useState({name:"",age:24,short_description:"",personality_prompt:"",traits:"مهربان، شوخ‌طبع",interests:"موسیقی، فیلم، سفر"});
   const [editingId,setEditingId]=useState<string|null>(null);
   const load=async()=>{try{const [list,h,p]=await Promise.all([api<Companion[]>("/api/companions"),api<{status:string}>("/api/health"),api<{configured:boolean;model:string}>("/api/settings/provider")]);setCompanions(list);setSelected(current=>current??list[0]??null);if(list.length){api<Session[]>(`/api/companions/${list[0].id}/sessions`).then(setSessions).catch(()=>setSessions([]));}setHealth(h.status==="ok");setProvider(p);}catch{setHealth(false);}};
