@@ -22,3 +22,18 @@ if database_url.startswith("sqlite:///"):
 
 engine = create_engine(database_url, connect_args=connect_args, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+
+def ensure_sqlite_compatibility() -> None:
+    """Apply small additive migrations for existing local SQLite installations."""
+    if not database_url.startswith("sqlite"):
+        return
+    from sqlalchemy import inspect, text
+
+    inspector = inspect(engine)
+    if "companion_memories" not in inspector.get_table_names():
+        return
+    columns = {column["name"] for column in inspector.get_columns("companion_memories")}
+    if "embedding" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE companion_memories ADD COLUMN embedding JSON"))
