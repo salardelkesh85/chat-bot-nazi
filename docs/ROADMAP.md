@@ -56,7 +56,7 @@
 
 ## Phase 5 — Advanced experience
 - [x] Companion avatar URL field and preview in create/edit studio
-- [ ] Local image upload and local image management
+- [x] Local image upload and local image management
 - [ ] Streaming chat responses
 - [x] Browser-based Persian text-to-speech playback for assistant messages
 - [x] Per-chat speech rate and pitch controls
@@ -81,7 +81,8 @@
 - [ ] Usage and latency diagnostics
 
 ## Phase 6 — Reliability
-- [ ] Automated backend and frontend tests
+- [x] Automated backend tests for backup integrity, restore validation, character evolution, and existing services
+- [ ] Frontend component and interaction tests
 - [x] Windows launch scripts
 - [ ] Dependency lockfiles
 - [ ] Local installation and smoke test on the target Windows laptop
