@@ -16,3 +16,6 @@
 .speech-auto{display:flex;align-items:center;gap:7px;color:#b9aabd;font-size:10px}.speech-auto input{accent-color:#d18ab4}.chat-tools button:disabled{opacity:.5;cursor:not-allowed}.chat-tools button[aria-pressed=true]{border-color:#d18ab4;color:#f0b6d4;background:#d18ab41a}
 
 .voice-engine-status{display:inline-flex;align-items:center;border:1px solid #d7a36b44;background:#d7a36b0c;color:#d9b889;border-radius:20px;padding:6px 9px;font-size:9px}.voice-engine-status.ready{border-color:#8cc69b44;background:#8cc69b0c;color:#a8d4b0}
+
+.local-speak{border-color:#8cc69b44;background:#8cc69b0b;color:#a8d4b0}.local-speak:hover{background:#8cc69b1a}
+.personality-studio small{font-size:9px;color:#8e8798;line-height:1.7}
