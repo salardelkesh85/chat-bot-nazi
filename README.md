@@ -4,7 +4,7 @@ A private, single-owner AI companion application designed to run locally on your
 
 ## Current status
 
-Phase 1 scaffold:
+Current implementation:
 - React + Vite frontend
 - FastAPI backend
 - SQLite local database
@@ -13,6 +13,9 @@ Phase 1 scaffold:
 - Persistent chat sessions and message history
 - OpenAI-compatible API adapter
 - Per-companion saved memory CRUD and memory context injection
+- AI memory suggestions with owner approval
+- Lightweight local relevance ranking for memory retrieval
+- Conversation history and resume
 - No public registration or multi-user system
 
 ## Requirements
@@ -55,11 +58,11 @@ Open http://127.0.0.1:5173
 - Never commit `.env`, API keys, the database, or private memories.
 - When an external AI API is configured, message context sent for inference leaves the computer and is processed by that provider.
 
-## Planned modules
+## Current memory retrieval note\n\nMemory retrieval currently uses a lightweight local keyword-overlap and importance ranking. It does not yet use vector embeddings. Saved memories are selected separately for each companion.\n\n## Planned modules
 
 1. Companion/personality creator
 2. Chat and conversation history
-3. Long-term memory and retrieval
+3. Long-term memory and lexical relevance retrieval
 4. AI provider adapters
 5. Local settings, export, and backup
 
