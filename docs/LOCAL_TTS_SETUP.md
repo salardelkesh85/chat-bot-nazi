@@ -9,7 +9,7 @@ Activate the backend virtual environment and install the optional package:
 ```powershell
 cd backend
 .\.venv\Scripts\Activate.ps1
-python -m pip install piper-tts
+python -m pip install -r requirements-voice.txt
 ```
 
 Confirm that the `piper` command is available in the same terminal:
