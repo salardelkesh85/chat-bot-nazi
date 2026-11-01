@@ -19,7 +19,8 @@ declare global {
     webkitSpeechRecognition?:new()=>SpeechRecognitionLike;
   }
 }
-\ntype PersonalityConfig = { preset:"custom"|"gentle"|"playful"|"romantic"|"serious"; humor:number; warmth:number; seriousness:number; expressiveness:number; voice_style:string; backstory:string };
+
+type PersonalityConfig = { preset:"custom"|"gentle"|"playful"|"romantic"|"serious"; humor:number; warmth:number; seriousness:number; expressiveness:number; voice_style:string; backstory:string };
 type Companion = { id:string; name:string; age:number; short_description:string; personality_prompt:string; traits:string[]; interests:string[]; personality_config:PersonalityConfig; avatar_url?:string|null };
 type Session = { id:string; companion_id:string; title:string; created_at?:string };
 type Message = { id:string; role:string; content:string };
