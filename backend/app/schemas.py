@@ -9,6 +9,7 @@ class PersonalityConfig(BaseModel):
     seriousness: int = Field(default=35, ge=0, le=100)
     expressiveness: int = Field(default=65, ge=0, le=100)
     voice_style: str = Field(default="صمیمی و طبیعی", max_length=120)
+    voice_model: str = Field(default="", max_length=120)
     backstory: str = Field(default="", max_length=4000)
 
 class CompanionCreate(BaseModel):
