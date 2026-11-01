@@ -24,6 +24,9 @@
 - [x] AI-generated memory suggestions
 - [x] Explicit user approval before saving suggested memories
 - [x] Memory vault UI
+- [x] Manually create, edit, re-categorize, re-rank, and delete saved memories
+- [x] Refresh local semantic embeddings when a memory's text is edited
+- [x] Validate partial memory updates and importance bounds
 - [x] Optional local multilingual embedding pipeline and semantic retrieval fallback
 - [ ] Bundle and verify local embedding model weights on target Windows machine
 - [x] User-triggered persistent summaries for individual chat sessions
