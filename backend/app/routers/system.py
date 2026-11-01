@@ -117,6 +117,20 @@ def download_full_backup():
     )
 
 
+
+@router.get("/safety-backups/{filename}")
+def download_safety_backup(filename: str):
+    if Path(filename).name != filename or not filename.startswith("pre-restore-") or not filename.endswith(".zip"):
+        raise HTTPException(status_code=404, detail="فایل پشتیبان ایمنی پیدا نشد.")
+    backup_path = (BACKUP_DIRECTORY / filename).resolve()
+    if backup_path.parent != BACKUP_DIRECTORY.resolve() or not backup_path.is_file():
+        raise HTTPException(status_code=404, detail="فایل پشتیبان ایمنی پیدا نشد.")
+    return FileResponse(
+        backup_path,
+        media_type="application/zip",
+        filename=filename,
+    )
+
 @router.post("/restore")
 async def restore_full_backup(request: Request):
     content_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
