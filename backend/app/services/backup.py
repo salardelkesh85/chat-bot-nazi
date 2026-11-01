@@ -119,11 +119,15 @@ def build_backup_archive(
             for archive_name, file_path in archive_entries:
                 archive.write(file_path, archive_name)
 
+    archive_bytes = output_path.stat().st_size
+    if archive_bytes > MAX_ARCHIVE_BYTES:
+        output_path.unlink(missing_ok=True)
+        raise BackupValidationError("حجم فایل پشتیبان از سقف ۵۱۲ مگابایت بیشتر شد.")
     return {
         "created_at": manifest["created_at"],
         "media_files": sum(1 for name, _ in archive_entries if name.startswith("media/")),
-        "database_bytes": snapshot_path.stat().st_size if snapshot_path.exists() else manifest_files[0]["size"],
-        "archive_bytes": output_path.stat().st_size,
+        "database_bytes": manifest_files[0]["size"],
+        "archive_bytes": archive_bytes,
     }
 
 
