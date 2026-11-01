@@ -26,7 +26,8 @@
 - [x] Memory vault UI
 - [x] Optional local multilingual embedding pipeline and semantic retrieval fallback
 - [ ] Bundle and verify local embedding model weights on target Windows machine
-- [ ] Automatic conversation summaries
+- [x] User-triggered persistent summaries for individual chat sessions
+- [x] Inject up to five earlier session summaries into future chats with the same companion
 - [ ] Background memory consolidation
 
 ## Phase 4 — Character behavior
