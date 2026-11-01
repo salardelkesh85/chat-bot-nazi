@@ -28,14 +28,22 @@
 - [ ] Automatic conversation summaries
 - [ ] Background memory consolidation
 
-## Phase 4 — Advanced experience
+## Phase 4 — Character behavior
+- [x] Per-companion fictional state record (mood, familiarity, trust, energy)
+- [x] Gradual bounded state updates from conversation cues
+- [x] Include state in character prompt context
+- [x] Display state indicators in chat UI
+- [ ] User-adjustable behavior sliders and personality presets
+- [ ] More robust multilingual sentiment and context analysis
+
+## Phase 5 — Advanced experience
 - [ ] Avatar upload and local image management
 - [ ] Streaming chat responses
 - [ ] Voice input/output
 - [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
 
-## Phase 5 — Reliability
+## Phase 6 — Reliability
 - [ ] Automated backend and frontend tests
 - [ ] Windows launch scripts
 - [ ] Dependency lockfiles
