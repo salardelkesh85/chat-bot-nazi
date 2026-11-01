@@ -13,7 +13,8 @@ Current implementation:
 - Personality Studio with presets and behavior sliders
 - Persistent chat sessions and message history
 - OpenAI-compatible API adapter
-- Optional local Persian speech-to-text through faster-whisper (model weights installed separately)
+- Optional local speech-to-text through faster-whisper (model weights installed separately)
+- Optional per-companion local Piper text-to-speech with WAV playback
 - Per-companion saved memory CRUD and memory context injection
 - AI memory suggestions with owner approval
 - Lightweight local relevance ranking with optional multilingual local vector embeddings
@@ -63,6 +64,10 @@ Open http://127.0.0.1:5173
 ## Local voice engine
 
 Install `backend/requirements-voice.txt` and follow [docs/LOCAL_VOICE_SETUP.md](docs/LOCAL_VOICE_SETUP.md) to enable local faster-whisper transcription. Model weights are not stored in Git and are never downloaded at runtime. Chat completion remains independently configurable.
+
+## Local voice output
+
+Install Piper and a compatible local ONNX voice model, then follow [docs/LOCAL_TTS_SETUP.md](docs/LOCAL_TTS_SETUP.md). Each companion can store its own selected local voice. No voice model is bundled or downloaded at runtime.
 
 ## Local semantic memory
 
