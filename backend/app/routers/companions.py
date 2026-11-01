@@ -60,6 +60,17 @@ def delete_companion(companion_id: str, db: Session = Depends(get_db)):
     db.commit()
 
 
+@router.get("/{companion_id}/sessions", response_model=list[SessionRead])
+def list_sessions(companion_id: str, db: Session = Depends(get_db)):
+    if not db.get(Companion, companion_id):
+        raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
+    return db.scalars(
+        select(ConversationSession)
+        .where(ConversationSession.companion_id == companion_id)
+        .order_by(ConversationSession.created_at.desc())
+    ).all()
+
+
 @router.post("/{companion_id}/sessions", response_model=SessionRead, status_code=status.HTTP_201_CREATED)
 def create_session(companion_id: str, db: Session = Depends(get_db)):
     companion = db.get(Companion, companion_id)
