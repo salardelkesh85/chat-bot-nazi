@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.database import SessionLocal
 from app.models import ChatMessage, Companion, CompanionMemory, ConversationSession
-from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply
-from app.schemas import MessageRead, ProviderStatus, SendMessage
+from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates
+from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -78,3 +78,27 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
 @router.get("/settings/provider", response_model=ProviderStatus)
 def provider_status():
     return ProviderStatus(configured=bool(settings.ai_api_key and settings.ai_model), provider=settings.ai_provider or "OpenAI-compatible", model=settings.ai_model or "")
+
+
+
+@router.post("/sessions/{session_id}/memory-suggestions", response_model=list[MemoryCandidate])
+async def suggest_memories(session_id: str, db: Session = Depends(get_db)):
+    session = db.get(ConversationSession, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="گفت‌وگو پیدا نشد.")
+    recent = db.scalars(
+        select(ChatMessage)
+        .where(ChatMessage.session_id == session_id)
+        .order_by(ChatMessage.created_at.desc())
+        .limit(30)
+    ).all()
+    recent.reverse()
+    if not recent:
+        return []
+    history = [{"role": item.role, "content": item.content} for item in recent]
+    try:
+        return await extract_memory_candidates(history)
+    except ProviderNotConfigured as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ProviderRequestError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
