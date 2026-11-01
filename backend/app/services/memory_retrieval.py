@@ -28,6 +28,46 @@ def _memory_boost(memory: CompanionMemory) -> float:
     layer_boost = {"preference": 0.012, "episodic": 0.008}.get(layer, 0.0)
     return importance + confidence + access_count + recency + layer_boost
 
+def rank_conversation_messages(messages: list, query: str, limit: int = 6) -> list:
+    """Retrieve relevant excerpts from all earlier sessions using local vectors or lexical fallback."""
+    query_vector = embed_text(query)
+    query_tokens = _tokens(query)
+    scored: list[tuple[float, object]] = []
+
+    for message in messages:
+        content = getattr(message, "content", "") or ""
+        message_tokens = _tokens(content)
+        overlap = sum(min(count, message_tokens[token]) for token, count in query_tokens.items())
+        coverage = overlap / max(1, sum(query_tokens.values()))
+        embedding = getattr(message, "embedding", None)
+
+        if query_vector is not None and embedding:
+            semantic_score = max(0.0, cosine_similarity(query_vector, embedding))
+            score = semantic_score * 0.88 + min(1.0, coverage) * 0.12
+            threshold = 0.34
+        else:
+            score = coverage
+            threshold = 0.30
+
+        created_at = getattr(message, "created_at", None)
+        if created_at:
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            age_days = max(0.0, (datetime.now(timezone.utc) - created_at).total_seconds() / 86400)
+            score += 0.025 * math.exp(-age_days / 365)
+
+        if score >= threshold:
+            scored.append((score, message))
+
+    scored.sort(
+        key=lambda item: (
+            item[0],
+            getattr(item[1], "created_at", None) or datetime.min.replace(tzinfo=timezone.utc),
+        ),
+        reverse=True,
+    )
+    return [message for _, message in scored[:max(1, min(limit, 12))]]
+
 
 def rank_memories(memories: list[CompanionMemory], query: str, limit: int = 8) -> list[CompanionMemory]:
     """Rank relevant facts using local vectors when available and lexical fallback otherwise."""
