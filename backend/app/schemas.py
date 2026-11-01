@@ -129,3 +129,32 @@ class RelationshipEventRead(BaseModel):
     event_type: str
     occurred_at: datetime
     created_at: datetime
+
+
+class PreferenceCreate(BaseModel):
+    category: str = Field(default="communication_style", pattern="^(communication_style|interests|boundaries|format|other)$")
+    content: str = Field(min_length=1, max_length=1200)
+    source_session_id: str | None = Field(default=None, max_length=36)
+
+class PreferenceRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    companion_id: str
+    category: str
+    content: str
+    source_session_id: str | None
+    confirmed_at: datetime
+    created_at: datetime
+
+class PreferenceCandidate(BaseModel):
+    category: str
+    content: str
+
+class TimelineCandidate(BaseModel):
+    title: str
+    description: str = ""
+    event_type: Literal["milestone", "memory", "first_time", "shared_interest", "custom"] = "memory"
+
+class CompanionInsightSuggestions(BaseModel):
+    preferences: list[PreferenceCandidate] = Field(default_factory=list)
+    events: list[TimelineCandidate] = Field(default_factory=list)
