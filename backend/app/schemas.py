@@ -81,6 +81,7 @@ class MemoryUpdate(BaseModel):
     category: str | None = Field(default=None, min_length=1, max_length=40)
     content: str | None = Field(default=None, min_length=1, max_length=3000)
     importance: int | None = Field(default=None, ge=1, le=5)
+    source_session_id: str | None = Field(default=None, max_length=36)
 
 class MemoryRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
