@@ -60,7 +60,10 @@ export default function App(){
   const [speechRate,setSpeechRate]=useState(1);
   const [speechPitch,setSpeechPitch]=useState(1);
   const [speaking,setSpeaking]=useState(false);
-  const [listening,setListening]=useState(false);\n  const [localRecording,setLocalRecording]=useState(false);\n  const mediaRecorderRef=useRef<MediaRecorder|null>(null);\n  const audioChunksRef=useRef<Blob[]>([]);
+  const [listening,setListening]=useState(false);
+  const [localRecording,setLocalRecording]=useState(false);
+  const mediaRecorderRef=useRef<MediaRecorder|null>(null);
+  const audioChunksRef=useRef<Blob[]>([]);
   const [autoSpeak,setAutoSpeak]=useState(false);
   const recognitionRef=useRef<SpeechRecognitionLike|null>(null);
   const applyPreset=(preset:PersonalityConfig["preset"])=>{
