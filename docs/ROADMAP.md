@@ -34,7 +34,10 @@
 - [x] Gradual bounded state updates from conversation cues
 - [x] Include state in character prompt context
 - [x] Display state indicators in chat UI
-- [ ] User-adjustable behavior sliders and personality presets
+- [x] User-adjustable behavior sliders and personality presets
+- [x] Personality presets: gentle, playful, romantic, serious, and custom
+- [x] Structured voice style and character backstory settings
+- [x] Apply personality configuration consistently in chat prompt
 - [x] Per-companion relationship timeline storage and CRUD API
 - [x] Manually curated milestones and shared memories in the frontend
 - [ ] More robust multilingual sentiment and context analysis
