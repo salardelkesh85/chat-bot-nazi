@@ -8,6 +8,7 @@ class CompanionCreate(BaseModel):
     personality_prompt: str = Field(default="", max_length=12000)
     traits: list[str] = Field(default_factory=list, max_length=30)
     interests: list[str] = Field(default_factory=list, max_length=30)
+    personality_config: dict = Field(default_factory=dict)
     avatar_url: str | None = Field(default=None, max_length=1000)
     @field_validator("name")
     @classmethod
@@ -24,6 +25,7 @@ class CompanionUpdate(BaseModel):
     personality_prompt: str | None = Field(default=None, max_length=12000)
     traits: list[str] | None = Field(default=None, max_length=30)
     interests: list[str] | None = Field(default=None, max_length=30)
+    personality_config: dict | None = None
     avatar_url: str | None = Field(default=None, max_length=1000)
 
 class CompanionRead(BaseModel):
@@ -35,6 +37,7 @@ class CompanionRead(BaseModel):
     personality_prompt: str
     traits: list[str]
     interests: list[str]
+    personality_config: dict
     avatar_url: str | None
     created_at: datetime
 
