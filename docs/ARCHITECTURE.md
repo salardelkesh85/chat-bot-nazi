@@ -9,6 +9,9 @@ Nazi AI is a single-owner local application. It has no public registration, publ
 - Frontend: React + Vite, served at 127.0.0.1:5173 during development.
 - Backend: FastAPI, served at 127.0.0.1:8000.
 - Database: SQLite file under backend/data/.
+- Local media: avatar files under backend/data/media/avatars/ and served only by the local FastAPI process.
+- Backups: ZIP archives built from SQLite online snapshots plus local media, with a SHA-256 manifest and validated restore workflow.
+- Restore safety: a pre-restore ZIP is saved locally; the previous database and media are rolled back if installation fails.
 - AI inference: external provider API through a backend-only adapter. The API key must never be exposed to the browser.
 
 ## Core modules (planned)
@@ -19,6 +22,8 @@ Nazi AI is a single-owner local application. It has no public registration, publ
 - memory: candidate extraction, user review, persistence, semantic retrieval, and deletion.
 - providers: provider-neutral interface for model APIs.
 - settings: local model/provider configuration and usage controls.
+- storage: local avatar assets, media inventory, and private data paths.
+- backup: versioned archive export, checksum validation, SQLite integrity checks, and restore rollback.
 
 ## Privacy and safety
 
