@@ -8,13 +8,16 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse
+from sqlalchemy import select
+from sqlalchemy.orm import Session
 from starlette.background import BackgroundTask
 
 from app import models  # noqa: F401
 from app.core.storage import AVATAR_DIRECTORY, BACKUP_DIRECTORY, DATABASE_FILE, MEDIA_DIRECTORY
-from app.database import Base, engine, ensure_sqlite_compatibility
+from app.database import Base, SessionLocal, engine, ensure_sqlite_compatibility
+from app.models import Companion
 from app.services.backup import (
     MAX_ARCHIVE_BYTES,
     BackupValidationError,
@@ -39,6 +42,42 @@ def _media_file_count() -> int:
 def _remove_sqlite_sidecars() -> None:
     for suffix in ("-wal", "-shm", "-journal"):
         Path(f"{DATABASE_FILE}{suffix}").unlink(missing_ok=True)
+
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@router.get("/assets")
+def local_asset_inventory(db: Session = Depends(get_db)):
+    companions = db.scalars(
+        select(Companion).where(Companion.avatar_url.is_not(None)).order_by(Companion.created_at.desc())
+    ).all()
+    items = []
+    for companion in companions:
+        url = companion.avatar_url or ""
+        is_local = url.startswith("/media/avatars/")
+        size = None
+        exists = True
+        if is_local:
+            filename = url.removeprefix("/media/avatars/")
+            path = (AVATAR_DIRECTORY / filename).resolve() if Path(filename).name == filename else None
+            exists = bool(path and path.parent == AVATAR_DIRECTORY.resolve() and path.is_file())
+            size = path.stat().st_size if exists and path else None
+        items.append({
+            "companion_id": companion.id,
+            "companion_name": companion.name,
+            "avatar_url": url,
+            "storage": "local" if is_local else "external",
+            "exists": exists,
+            "size_bytes": size,
+        })
+    return {"items": items, "total": len(items)}
 
 
 @router.get("/status")
