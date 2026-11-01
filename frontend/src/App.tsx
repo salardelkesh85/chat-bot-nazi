@@ -231,7 +231,7 @@ export default function App(){
   const savePreference=async(item:{category:string;content:string})=>{
     if(!selected)return;
     try{
-      const saved=await api<CompanionPreference>(`/api/companions/${selected.id}/preferences`,{method:"POST",body:JSON.stringify({...item,source_session_id:session?.id||null})});
+      const saved=await api<CompanionPreference>(`/api/companions/${selected.id}/preferences`,{method:"POST",body:JSON.stringify({...item,source_session_id:session?.companion_id===selected.id?session.id:null})});
       setApprovedPreferences(items=>[saved,...items.filter(existing=>existing.content!==saved.content)]);
       setInsightSuggestions(current=>({...current,preferences:current.preferences.filter(candidate=>candidate!==item)}));
     }catch(e){setError((e as Error).message);}
