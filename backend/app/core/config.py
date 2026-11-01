@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     ai_model: str = ""
     ai_base_url: str = "https://api.openai.com/v1"
     ai_timeout_seconds: int = 90
+    voice_stt_model_path: str = str(BACKEND_DIR / "models" / "faster-whisper-small")
+    voice_stt_device: str = "cpu"
+    voice_stt_compute_type: str = "int8"
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
