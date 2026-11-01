@@ -9,7 +9,7 @@ Current implementation:
 - FastAPI backend
 - SQLite local database
 - Local-only development endpoints
-- Companion creation and editing API
+- Companion creation and editing API\n- Personality Studio with presets and behavior sliders
 - Persistent chat sessions and message history
 - OpenAI-compatible API adapter
 - Per-companion saved memory CRUD and memory context injection
@@ -64,7 +64,7 @@ The backend supports optional on-device multilingual embeddings. Install `backen
 
 ## Planned modules
 
-1. Companion/personality creator
+1. Companion/personality creator and structured Personality Studio
 2. Chat and conversation history
 3. Long-term memory and local semantic/lexical retrieval
 4. AI provider adapters
