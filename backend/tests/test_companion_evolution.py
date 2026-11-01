@@ -31,7 +31,7 @@ class CompanionEvolutionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(completion.call_args.kwargs["temperature"], 0.1)
 
     async def test_parses_fenced_json_response(self):
-        response = chr(96) * 3 + 'json\\n{"preferences":[],"events":[]}\\n' + chr(96) * 3
+        response = chr(96) * 3 + "json" + chr(10) + '{"preferences":[],"events":[]}' + chr(10) + chr(96) * 3
         with patch(
             "app.providers.openai_compatible._completion",
             new=AsyncMock(return_value=response),
