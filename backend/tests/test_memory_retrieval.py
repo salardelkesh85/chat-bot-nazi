@@ -69,9 +69,6 @@ class ConversationRecallTests(unittest.TestCase):
         self.assertEqual(results[0].content, "مورد مرتبط")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class PersonalityConfigTests(unittest.TestCase):
     def test_default_personality_settings(self):
@@ -91,3 +88,7 @@ class PersonalityConfigTests(unittest.TestCase):
         from app.schemas import PersonalityConfig
         with self.assertRaises(ValidationError):
             PersonalityConfig(preset="unknown")
+
+
+if __name__ == "__main__":
+    unittest.main()
