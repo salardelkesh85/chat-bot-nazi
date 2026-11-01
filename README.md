@@ -33,7 +33,14 @@ Current implementation:
 - Python 3.11+
 - Node.js 20 LTS+
 
-## Windows quick start\n\n- Run `setup_nazi_ai.bat` once to create the Python environment and install dependencies.\n- Run `start_nazi_ai.bat` to launch the backend, frontend, and open the app.\n\nSee [docs/BACKUP_AND_TRANSFER.md](docs/BACKUP_AND_TRANSFER.md) for backup and computer migration instructions.\n\n## Run the backend
+## Windows quick start
+
+- Run `setup_nazi_ai.bat` once to create the Python environment and install dependencies.
+- Run `start_nazi_ai.bat` to launch the backend, frontend, and open the app.
+
+See [docs/BACKUP_AND_TRANSFER.md](docs/BACKUP_AND_TRANSFER.md) for backup and computer migration instructions.
+
+## Run the backend
 
 Open PowerShell in the repository:
 
