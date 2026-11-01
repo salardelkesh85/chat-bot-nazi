@@ -73,3 +73,15 @@ class CompanionEmotionalState(Base):
     interaction_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
     companion: Mapped[Companion] = relationship(back_populates="emotional_state")
+
+
+class RelationshipEvent(Base):
+    __tablename__ = "relationship_events"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    companion_id: Mapped[str] = mapped_column(ForeignKey("companions.id", ondelete="CASCADE"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(120), nullable=False)
+    description: Mapped[str] = mapped_column(Text, default="", nullable=False)
+    event_type: Mapped[str] = mapped_column(String(32), default="memory", nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
