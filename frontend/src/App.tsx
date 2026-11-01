@@ -20,7 +20,7 @@ export default function App(){
   const [session,setSession]=useState<Session|null>(null);
   const [messages,setMessages]=useState<Message[]>([]);\n  const [sessions,setSessions]=useState<Session[]>([]);
   const [draft,setDraft]=useState("");
-  const [view,setView]=useState<"home"|"create"|"chat"|"settings">("home");
+  const [view,setView]=useState<"home"|"create"|"chat"|"settings"|"memory">("home");
   const [busy,setBusy]=useState(false);
   const [error,setError]=useState("");
   const [health,setHealth]=useState(false);
