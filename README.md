@@ -18,6 +18,8 @@ Current implementation:
 - Per-companion saved memory CRUD and memory context injection
 - AI memory suggestions with owner approval
 - Persistent per-session conversation summaries and cross-session context injection
+- Per-companion approved preference profiles and user-reviewed character evolution suggestions
+- Shared relationship timeline context injected into future chats
 - Lightweight local relevance ranking with optional multilingual local vector embeddings
 - Conversation history and resume
 - No public registration or multi-user system
