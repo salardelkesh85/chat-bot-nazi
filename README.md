@@ -58,7 +58,11 @@ Open http://127.0.0.1:5173
 - Never commit `.env`, API keys, the database, or private memories.
 - When an external AI API is configured, message context sent for inference leaves the computer and is processed by that provider.
 
-## Current memory retrieval note\n\nMemory retrieval currently uses a lightweight local keyword-overlap and importance ranking. It does not yet use vector embeddings. Saved memories are selected separately for each companion.\n\n## Planned modules
+## Current memory retrieval note
+
+Memory retrieval currently uses a lightweight local keyword-overlap and importance ranking. It does not yet use vector embeddings. Saved memories are selected separately for each companion.
+
+## Planned modules
 
 1. Companion/personality creator
 2. Chat and conversation history
