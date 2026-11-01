@@ -43,9 +43,13 @@
 - [ ] More robust multilingual sentiment and context analysis
 
 ## Phase 5 — Advanced experience
-- [ ] Avatar upload and local image management
+- [x] Companion avatar URL field and preview in create/edit studio
+- [ ] Local image upload and local image management
 - [ ] Streaming chat responses
-- [ ] Voice input/output
+- [x] Browser-based Persian text-to-speech playback for assistant messages
+- [x] Per-chat speech rate and pitch controls
+- [ ] Voice input (speech-to-text)
+- [ ] Offline local neural TTS engine
 - [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
 
