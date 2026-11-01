@@ -64,6 +64,22 @@ class SendMessage(BaseModel):
     content: str = Field(min_length=1, max_length=12000)
 
 
+class MemoryCreate(BaseModel):
+    category: str = Field(default="shared", min_length=1, max_length=40)
+    content: str = Field(min_length=1, max_length=3000)
+    importance: int = Field(default=3, ge=1, le=5)
+
+
+class MemoryRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    companion_id: str
+    category: str
+    content: str
+    importance: int
+    created_at: datetime
+
+
 class ProviderStatus(BaseModel):
     configured: bool
     provider: str
