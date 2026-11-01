@@ -4,21 +4,22 @@
 - [x] Repository scaffold
 - [x] React + Vite shell
 - [x] FastAPI local service
-- [x] SQLite engine initialization
+- [x] SQLite database initialization
 - [x] Local health endpoint
-- [ ] Verify local installation on the owner's Windows computer
 
 ## Phase 2 — Companion creation and chat
-- [ ] Companion data model and CRUD
-- [ ] Personality builder
-- [ ] Chat sessions and message history
-- [ ] Provider adapter and secure API configuration
-- [ ] Streaming assistant responses
+- [x] Companion data model and CRUD API
+- [x] Companion personality fields (adult fictional characters only)
+- [x] Chat sessions and persistent message history
+- [x] OpenAI-compatible provider adapter
+- [x] Provider configuration status endpoint
+- [ ] Connect frontend companion creator and chat UI
+- [ ] Verify API key and model configuration locally
 
 ## Phase 3 — Long-term memory
 - [ ] Memory schema and categories
 - [ ] Memory extraction proposals
-- [ ] User review and edit/delete
+- [ ] User review, edit, and delete
 - [ ] Semantic retrieval
 - [ ] Conversation summaries
 
