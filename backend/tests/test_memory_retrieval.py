@@ -35,3 +35,23 @@ class SemanticMemoryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PersonalityConfigTests(unittest.TestCase):
+    def test_default_personality_settings(self):
+        from app.schemas import PersonalityConfig
+        config = PersonalityConfig()
+        self.assertEqual(config.preset, "custom")
+        self.assertEqual(config.warmth, 70)
+
+    def test_personality_slider_bounds_are_validated(self):
+        from pydantic import ValidationError
+        from app.schemas import PersonalityConfig
+        with self.assertRaises(ValidationError):
+            PersonalityConfig(humor=101)
+
+    def test_personality_presets_are_restricted(self):
+        from pydantic import ValidationError
+        from app.schemas import PersonalityConfig
+        with self.assertRaises(ValidationError):
+            PersonalityConfig(preset="unknown")
