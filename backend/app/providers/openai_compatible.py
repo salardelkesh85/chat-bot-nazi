@@ -130,7 +130,7 @@ async def extract_companion_insights(history: list[dict[str, str]]) -> dict:
     try:
         cleaned = raw.strip()
         if cleaned.startswith("```"):
-            cleaned = cleaned.split("\\n", 1)[1].rsplit("```", 1)[0].strip()
+            cleaned = cleaned.split("\n", 1)[1].rsplit("```", 1)[0].strip()
         parsed = json.loads(cleaned)
         if not isinstance(parsed, dict):
             raise ValueError("Expected an object")
