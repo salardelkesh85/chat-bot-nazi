@@ -9,6 +9,7 @@ from app.providers.openai_compatible import ProviderNotConfigured, ProviderReque
 from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage
 from app.services.memory_retrieval import rank_memories
 from app.services.emotional_engine import update_emotional_state, describe_state
+from app.services.semantic_memory import semantic_available, MODEL_DIR
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -117,3 +118,15 @@ async def suggest_memories(session_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ProviderRequestError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
+@router.get("/settings/memory-engine")
+def memory_engine_status():
+    available = semantic_available()
+    return {
+        "mode": "semantic" if available else "lexical_fallback",
+        "semantic_available": available,
+        "model": "paraphrase-multilingual-MiniLM-L12-v2",
+        "model_path": str(MODEL_DIR),
+        "message": "Local semantic retrieval is active." if available else "Optional local model is not installed; lexical retrieval remains active.",
+    }
