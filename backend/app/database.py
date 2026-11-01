@@ -40,4 +40,4 @@ def ensure_sqlite_compatibility() -> None:
         if "companions" in tables:
             companion_columns = {column["name"] for column in inspector.get_columns("companions")}
             if "personality_config" not in companion_columns:
-                connection.execute(text("ALTER TABLE companions ADD COLUMN personality_config JSON NOT NULL DEFAULT '{}')")
+                connection.execute(text("ALTER TABLE companions ADD COLUMN personality_config JSON NOT NULL DEFAULT '{}'")
