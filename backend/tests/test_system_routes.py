@@ -12,6 +12,9 @@ class LocalSystemRouteTests(unittest.TestCase):
         self.assertIn("/api/system/restore", paths)
         self.assertIn("/api/system/safety-backups/{filename}", paths)
         self.assertIn("/api/companions/{companion_id}/avatar", paths)
+        self.assertIn("/api/companions/{companion_id}/memories/check", paths)
+        self.assertIn("/api/companions/{companion_id}/memories/index-status", paths)
+        self.assertIn("/api/companions/{companion_id}/memories/reindex", paths)
         route_paths = {getattr(route, "path", None) for route in app.routes}
         self.assertIn("/media", route_paths)
 
