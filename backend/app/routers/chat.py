@@ -7,6 +7,7 @@ from app.database import SessionLocal
 from app.models import ChatMessage, Companion, CompanionMemory, ConversationSession
 from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates
 from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage
+from app.services.memory_retrieval import rank_memories
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -36,6 +37,8 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     if not companion:
         raise HTTPException(status_code=404, detail="شخصیت این گفت‌وگو پیدا نشد.")
 
+    if session.title == "گفت‌وگوی جدید":
+        session.title = payload.content.strip()[:60] or "گفت‌وگوی جدید"
     user_message = ChatMessage(session_id=session_id, role="user", content=payload.content.strip())
     db.add(user_message)
     db.commit()
