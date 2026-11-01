@@ -4,10 +4,11 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.database import SessionLocal
-from app.models import ChatMessage, Companion, CompanionMemory, ConversationSession
+from app.models import ChatMessage, Companion, CompanionMemory, CompanionEmotionalState, ConversationSession
 from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates
 from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage
 from app.services.memory_retrieval import rank_memories
+from app.services.emotional_engine import update_emotional_state, describe_state
 
 router = APIRouter(prefix="/api", tags=["chat"])
 
@@ -36,6 +37,14 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     companion = db.get(Companion, session.companion_id)
     if not companion:
         raise HTTPException(status_code=404, detail="شخصیت این گفت‌وگو پیدا نشد.")
+
+    state = db.get(CompanionEmotionalState, companion.id)
+    if state is None:
+        state = CompanionEmotionalState(companion_id=companion.id)
+        db.add(state)
+    update_emotional_state(state, payload.content)
+    db.commit()
+    db.refresh(state)
 
     if session.title == "گفت‌وگوی جدید":
         session.title = payload.content.strip()[:60] or "گفت‌وگوی جدید"
