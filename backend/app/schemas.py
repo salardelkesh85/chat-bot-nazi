@@ -89,3 +89,20 @@ class ProviderStatus(BaseModel):
     configured: bool
     provider: str
     model: str
+
+
+class RelationshipEventCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+    description: str = Field(default="", max_length=2000)
+    event_type: str = Field(default="memory", pattern="^(milestone|memory|first_time|shared_interest|custom)$")
+    occurred_at: datetime | None = None
+
+class RelationshipEventRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    companion_id: str
+    title: str
+    description: str
+    event_type: str
+    occurred_at: datetime
+    created_at: datetime
