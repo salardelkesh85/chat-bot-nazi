@@ -28,6 +28,12 @@
 - [x] Refresh local semantic embeddings when a memory's text is edited
 - [x] Validate partial memory updates and importance bounds
 - [x] Optional local multilingual embedding pipeline and semantic retrieval fallback
+- [x] Layered memory classification: semantic facts, episodic events, and confirmed preferences
+- [x] Local embeddings for new user and assistant messages
+- [x] Semantic and lexical retrieval across all earlier conversation sessions
+- [x] Reindex endpoint for older conversations when the local embedding model is installed
+- [x] Duplicate and possible contradiction detection before saving a memory
+- [x] Explicit owner choice to keep both memories, replace an old memory, or cancel
 - [ ] Bundle and verify local embedding model weights on target Windows machine
 - [x] User-triggered persistent summaries for individual chat sessions
 - [x] Inject up to five earlier session summaries into future chats with the same companion
