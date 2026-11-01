@@ -25,6 +25,7 @@ class Companion(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     sessions: Mapped[list["ConversationSession"]] = relationship(back_populates="companion", cascade="all, delete-orphan")
     memories: Mapped[list["CompanionMemory"]] = relationship(back_populates="companion", cascade="all, delete-orphan")
+    emotional_state: Mapped["CompanionEmotionalState | None"] = relationship(back_populates="companion", cascade="all, delete-orphan", uselist=False)
 
 
 class ConversationSession(Base):
@@ -59,3 +60,16 @@ class CompanionMemory(Base):
     importance: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     companion: Mapped[Companion] = relationship(back_populates="memories")
+
+
+class CompanionEmotionalState(Base):
+    __tablename__ = "companion_emotional_states"
+
+    companion_id: Mapped[str] = mapped_column(ForeignKey("companions.id", ondelete="CASCADE"), primary_key=True)
+    mood: Mapped[str] = mapped_column(String(24), default="calm", nullable=False)
+    closeness: Mapped[int] = mapped_column(Integer, default=20, nullable=False)
+    trust: Mapped[int] = mapped_column(Integer, default=20, nullable=False)
+    energy: Mapped[int] = mapped_column(Integer, default=70, nullable=False)
+    interaction_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
+    companion: Mapped[Companion] = relationship(back_populates="emotional_state")
