@@ -28,7 +28,9 @@ type Memory = { id:string; category:string; content:string; importance:number };
 type Candidate = { category:string; content:string; importance:number };
 type EmotionalState = { mood:string; closeness:number; trust:number; energy:number; interaction_count:number };
 type TimelineEvent = { id:string; title:string; description:string; event_type:string; occurred_at:string };
-type ConversationSummary = { id:string; session_id:string; summary:string; message_count:number; updated_at:string };\ntype CompanionPreference = { id:string; companion_id:string; category:string; content:string; source_session_id:string|null; confirmed_at:string; created_at:string };\ntype InsightSuggestions = { preferences:{category:string;content:string}[]; events:{title:string;description:string;event_type:string}[] };
+type ConversationSummary = { id:string; session_id:string; summary:string; message_count:number; updated_at:string };
+type CompanionPreference = { id:string; companion_id:string; category:string; content:string; source_session_id:string|null; confirmed_at:string; created_at:string };
+type InsightSuggestions = { preferences:{category:string;content:string}[]; events:{title:string;description:string;event_type:string}[] };
 
 async function api<T>(path:string, options:RequestInit={}):Promise<T>{
   const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
@@ -53,7 +55,11 @@ export default function App(){
   const [candidates,setCandidates]=useState<Candidate[]>([]);
   const [emotionalState,setEmotionalState]=useState<EmotionalState|null>(null);
   const [timelineEvents,setTimelineEvents]=useState<TimelineEvent[]>([]);
-  const [conversationSummaries,setConversationSummaries]=useState<ConversationSummary[]>([]);\n  const [approvedPreferences,setApprovedPreferences]=useState<CompanionPreference[]>([]);\n  const [insightSuggestions,setInsightSuggestions]=useState<InsightSuggestions>({preferences:[],events:[]});\n  const [insightBusy,setInsightBusy]=useState(false);\n  const [preferenceDraft,setPreferenceDraft]=useState({category:"communication_style",content:""});
+  const [conversationSummaries,setConversationSummaries]=useState<ConversationSummary[]>([]);
+  const [approvedPreferences,setApprovedPreferences]=useState<CompanionPreference[]>([]);
+  const [insightSuggestions,setInsightSuggestions]=useState<InsightSuggestions>({preferences:[],events:[]});
+  const [insightBusy,setInsightBusy]=useState(false);
+  const [preferenceDraft,setPreferenceDraft]=useState({category:"communication_style",content:""});
   const [summaryBusy,setSummaryBusy]=useState(false);
   const [editingMemoryId,setEditingMemoryId]=useState<string|null>(null);
   const [memoryDraft,setMemoryDraft]=useState({category:"personal_context",content:"",importance:3});
