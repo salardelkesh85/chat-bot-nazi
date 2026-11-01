@@ -59,6 +59,10 @@ def ensure_sqlite_compatibility() -> None:
                 "CREATE INDEX IF NOT EXISTS ix_companion_memories_source_session_id "
                 "ON companion_memories(source_session_id)"
             ))
+        if "messages" in tables:
+            message_columns = {column["name"] for column in inspector.get_columns("messages")}
+            if "embedding" not in message_columns:
+                connection.execute(text("ALTER TABLE messages ADD COLUMN embedding JSON"))
         if "companions" in tables:
             companion_columns = {column["name"] for column in inspector.get_columns("companions")}
             if "personality_config" not in companion_columns:
