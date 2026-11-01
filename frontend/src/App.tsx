@@ -1,61 +1,50 @@
-import { useEffect, useState } from "react";
-import { Heart, Brain, MessageCircle, Plus, ShieldCheck, Sparkles } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { Heart, Brain, MessageCircle, Plus, ShieldCheck, Sparkles, Send, ArrowLeft, Settings, Trash2 } from "lucide-react";
 
-type Health = {
-  status: string;
-  database: string;
-  mode: string;
-};
+type Companion = { id:string; name:string; age:number; short_description:string; personality_prompt:string; traits:string[]; interests:string[]; avatar_url?:string|null };
+type Session = { id:string; companion_id:string; title:string };
+type Message = { id:string; role:string; content:string };
 
-export default function App() {
-  const [health, setHealth] = useState<Health | null>(null);
+async function api<T>(path:string, options:RequestInit={}):Promise<T>{
+  const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
+  if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.detail||"درخواست ناموفق بود.");}
+  if(response.status===204) return undefined as T;
+  return response.json();
+}
 
-  useEffect(() => {
-    fetch("/api/health")
-      .then((response) => {
-        if (!response.ok) throw new Error("Backend unavailable");
-        return response.json();
-      })
-      .then(setHealth)
-      .catch(() => setHealth(null));
-  }, []);
-
-  return (
-    <main className="shell">
-      <aside className="sidebar">
-        <div className="brand"><span className="brand-mark"><Heart size={19} fill="currentColor" /></span><span>NAZI <b>AI</b></span></div>
-        <div className="side-label">WORKSPACE</div>
-        <button className="nav-item active"><MessageCircle size={17} /> Conversations</button>
-        <button className="nav-item"><Heart size={17} /> My companions</button>
-        <button className="nav-item"><Brain size={17} /> Memory vault</button>
-        <div className="side-bottom">
-          <div className="privacy"><ShieldCheck size={17} /><span><b>Private workspace</b><small>Running on this device</small></span></div>
-          <div className="version">NAZI AI · LOCAL BUILD 0.1</div>
-        </div>
-      </aside>
-
-      <section className="main-panel">
-        <header className="topbar"><span>PERSONAL AI COMPANION</span><div className="local-pill"><i /> LOCAL MODE</div></header>
-        <div className="content">
-          <div className="eyebrow"><Sparkles size={14} /> YOUR PRIVATE AI SPACE</div>
-          <h1>A little world,<br /><em>made just for you.</em></h1>
-          <p className="intro">Create a personality, shape the conversations, and build memories that stay on your computer.</p>
-
-          <div className="hero-card">
-            <div className="orb"><Heart size={32} fill="currentColor" /></div>
-            <div className="hero-copy"><span className="card-kicker">YOUR FIRST COMPANION</span><h2>Someone new is waiting.</h2><p>Give your first AI companion a name, a personality, and a story of her own.</p></div>
-            <button className="create-button"><Plus size={17} /> Create companion</button>
-          </div>
-
-          <div className="section-head"><div><span className="card-kicker">YOUR WORKSPACE</span><h2>Everything starts here</h2></div><span className="muted">Phase 1 · Foundation</span></div>
-          <div className="feature-grid">
-            <article className="feature-card"><div className="feature-icon pink"><Heart size={18} /></div><h3>Personality studio</h3><p>Define traits, tone, interests, backstory, and custom instructions.</p><span>COMING IN PHASE 2</span></article>
-            <article className="feature-card"><div className="feature-icon violet"><Brain size={18} /></div><h3>Memory vault</h3><p>Keep meaningful moments and retrieve the right memories later.</p><span>COMING IN PHASE 3</span></article>
-            <article className="feature-card"><div className="feature-icon blue"><MessageCircle size={18} /></div><h3>Private conversations</h3><p>Chat history stored in your local database, under your control.</p><span>COMING IN PHASE 2</span></article>
-          </div>
-          <footer className="status-footer"><span className={health ? "status-dot" : "status-dot offline"} />{health ? "Backend connected · SQLite ready · Local mode" : "Backend not detected · Start the local API to connect"}<span className="footer-right">YOUR DATA. YOUR DEVICE.</span></footer>
-        </div>
-      </section>
-    </main>
-  );
+export default function App(){
+  const [companions,setCompanions]=useState<Companion[]>([]);
+  const [selected,setSelected]=useState<Companion|null>(null);
+  const [session,setSession]=useState<Session|null>(null);
+  const [messages,setMessages]=useState<Message[]>([]);
+  const [draft,setDraft]=useState("");
+  const [view,setView]=useState<"home"|"create"|"chat"|"settings">("home");
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+  const [health,setHealth]=useState(false);
+  const [provider,setProvider]=useState<{configured:boolean;model:string}|null>(null);
+  const [form,setForm]=useState({name:"",age:24,short_description:"",personality_prompt:"",traits:"مهربان، شوخ‌طبع",interests:"موسیقی، فیلم، سفر"});
+  const load=async()=>{try{const [list,h,p]=await Promise.all([api<Companion[]>("/api/companions"),api<{status:string}>("/api/health"),api<{configured:boolean;model:string}>("/api/settings/provider")]);setCompanions(list);setHealth(h.status==="ok");setProvider(p);}catch{setHealth(false);}};
+  useEffect(()=>{load();},[]);
+  const createCompanion=async(e:FormEvent)=>{e.preventDefault();setBusy(true);setError("");try{const c=await api<Companion>("/api/companions",{method:"POST",body:JSON.stringify({...form,traits:form.traits.split(/[،,]/).map(x=>x.trim()).filter(Boolean),interests:form.interests.split(/[،,]/).map(x=>x.trim()).filter(Boolean)})});setCompanions(v=>[c,...v]);setSelected(c);setView("home");setForm({name:"",age:24,short_description:"",personality_prompt:"",traits:"مهربان، شوخ‌طبع",interests:"موسیقی، فیلم، سفر"});}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
+  const openChat=async(c:Companion)=>{setBusy(true);setError("");try{const s=await api<Session>(`/api/companions/${c.id}/sessions`,{method:"POST"});setSelected(c);setSession(s);setMessages([]);setView("chat");}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
+  const send=async(e:FormEvent)=>{e.preventDefault();if(!draft.trim()||!session)return;const content=draft.trim();setDraft("");setMessages(v=>[...v,{id:crypto.randomUUID(),role:"user",content}]);setBusy(true);setError("");try{const m=await api<Message>(`/api/sessions/${session.id}/messages`,{method:"POST",body:JSON.stringify({content})});setMessages(v=>[...v,m]);}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
+  const remove=async(c:Companion)=>{if(!confirm(`شخصیت «${c.name}» و مکالماتش حذف شود؟`))return;try{await api(`/api/companions/${c.id}`,{method:"DELETE"});setCompanions(v=>v.filter(x=>x.id!==c.id));}catch(e){setError((e as Error).message);}};
+  return <main className="shell">
+    <aside className="sidebar"><div className="brand"><span className="brand-mark"><Heart size={19} fill="currentColor"/></span><span>NAZI <b>AI</b></span></div><div className="side-label">فضای شخصی</div>
+      <button className={view==="home"?"nav-item active":"nav-item"} onClick={()=>setView("home")}><MessageCircle size={17}/> داشبورد</button>
+      <button className="nav-item" onClick={()=>setView("create")}><Heart size={17}/> ساخت شخصیت</button>
+      <button className="nav-item" onClick={()=>setView("settings")}><Settings size={17}/> تنظیمات API</button>
+      <div className="side-bottom"><div className="privacy"><ShieldCheck size={17}/><span><b>فضای خصوصی</b><small>اجرا روی همین دستگاه</small></span></div><div className="version">NAZI AI · LOCAL BUILD 0.2</div></div>
+    </aside>
+    <section className="main-panel"><header className="topbar"><span>دستیار هوشمند شخصی</span><div className="local-pill"><i/> LOCAL MODE</div></header>
+    <div className="content">
+      {view==="chat"&&selected&&session?<><button className="back-button" onClick={()=>setView("home")}><ArrowLeft size={16}/> بازگشت</button><div className="chat-heading"><div className="avatar">{selected.name.slice(0,1)}</div><div><h2>{selected.name}</h2><p>{selected.short_description||"همراه هوشمند تو"}</p></div></div><div className="messages">{messages.length===0&&<div className="empty-chat"><Heart size={24}/><p>گفت‌وگو با {selected.name} را شروع کن.</p></div>}{messages.map(m=><div key={m.id} className={m.role==="user"?"bubble user":"bubble assistant"}>{m.content}</div>)}{busy&&<div className="typing">در حال فکر کردن…</div>}</div><form className="composer" onSubmit={send}><input value={draft} onChange={e=>setDraft(e.target.value)} placeholder="پیامت را بنویس…" disabled={busy}/><button disabled={busy||!draft.trim()}><Send size={17}/></button></form></>:null}
+      {view==="create"&&<><div className="eyebrow"><Sparkles size={14}/> CHARACTER STUDIO</div><h1>شخصیت دلخواهت را<br/><em>خلق کن.</em></h1><p className="intro">یک شخصیت داستانی بزرگسال با هویت و لحن اختصاصی بساز.</p><form className="creator-form" onSubmit={createCompanion}><label>نام شخصیت<input required maxLength={80} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="مثلاً نازنین"/></label><label>سن (۱۸ سال به بالا)<input type="number" min="18" max="99" value={form.age} onChange={e=>setForm({...form,age:Number(e.target.value)})}/></label><label>توضیح کوتاه<input value={form.short_description} onChange={e=>setForm({...form,short_description:e.target.value})} placeholder="مثلاً پرانرژی و اهل موسیقی"/></label><label>ویژگی‌های شخصیتی<input value={form.traits} onChange={e=>setForm({...form,traits:e.target.value})}/></label><label>علایق<input value={form.interests} onChange={e=>setForm({...form,interests:e.target.value})}/></label><label className="wide">پرامپت و داستان شخصیت<textarea rows={5} value={form.personality_prompt} onChange={e=>setForm({...form,personality_prompt:e.target.value})} placeholder="درباره اخلاقیات، شیوه صحبت، گذشته داستانی و علایقش توضیح بده…"/></label><div className="form-actions"><button className="primary" disabled={busy}><Plus size={16}/> {busy?"در حال ساخت…":"ساخت شخصیت"}</button><button type="button" className="secondary" onClick={()=>setView("home")}>انصراف</button></div></form></>}
+      {view==="settings"&&<><div className="eyebrow"><Settings size={14}/> PROVIDER SETTINGS</div><h1>اتصال هوش مصنوعی</h1><p className="intro">کلید API فقط در فایل محلی backend/.env قرار می‌گیرد و به مرورگر ارسال نمی‌شود.</p><div className="feature-card settings-card"><h3>وضعیت اتصال</h3><p>{provider?.configured?"کلید و مدل تنظیم شده‌اند.":"هنوز API Key و مدل تنظیم نشده‌اند."}</p><p>مدل: {provider?.model||"تنظیم نشده"}</p><p>برای فعال‌سازی، AI_API_KEY و AI_MODEL را در backend/.env وارد کن و سرور را دوباره اجرا کن.</p></div></>}
+      {view==="home"&&<><div className="eyebrow"><Sparkles size={14}/> فضای خصوصی تو</div><h1>دنیای خودت را<br/><em>شخصی‌سازی کن.</em></h1><p className="intro">شخصیت بساز، با او گفت‌وگو کن و خاطرات مکالماتت را در کامپیوتر خودت نگه دار.</p><div className="hero-card"><div className="orb"><Heart size={32} fill="currentColor"/></div><div className="hero-copy"><span className="card-kicker">شروع تجربه تو</span><h2>یک همراه جدید خلق کن.</h2><p>نام، اخلاقیات، علایق و داستان شخصیت را خودت تعیین کن.</p></div><button className="create-button" onClick={()=>setView("create")}><Plus size={17}/> ساخت شخصیت</button></div><div className="section-head"><div><span className="card-kicker">شخصیت‌های تو</span><h2>همراه‌های من</h2></div><span className="muted">{companions.length} شخصیت</span></div>{companions.length===0?<div className="empty-state"><Heart size={25}/><p>هنوز شخصیتی نساختی. اولین همراهت را خلق کن.</p></div>:<div className="companion-grid">{companions.map(c=><article className="companion-card" key={c.id}><div className="companion-top"><div className="avatar">{c.name.slice(0,1)}</div><button className="icon-button" title="حذف شخصیت" onClick={()=>remove(c)}><Trash2 size={15}/></button></div><h3>{c.name} <small>{c.age} سال</small></h3><p>{c.short_description||c.traits.join("، ")}</p><button className="primary full" onClick={()=>openChat(c)} disabled={busy}><MessageCircle size={15}/> شروع گفت‌وگو</button></article>)}</div>}<div className="feature-grid"><article className="feature-card"><div className="feature-icon pink"><Heart size={18}/></div><h3>شخصیت‌سازی</h3><p>اخلاقیات، لحن، علایق و دستورالعمل اختصاصی.</p><span>فعال</span></article><article className="feature-card"><div className="feature-icon violet"><Brain size={18}/></div><h3>حافظه هوشمند</h3><p>حافظه بلندمدت در مرحله بعد اضافه می‌شود.</p><span>در حال توسعه</span></article><article className="feature-card"><div className="feature-icon blue"><MessageCircle size={18}/></div><h3>گفت‌وگوهای خصوصی</h3><p>تاریخچه پیام‌ها در دیتابیس محلی ذخیره می‌شود.</p><span>فعال با API</span></article></div></>}
+      {error&&<div className="error-banner">{error}</div>}
+      <footer className="status-footer"><span className={health?"status-dot":"status-dot offline"}/>{health?"Backend متصل است · دیتابیس محلی آماده":"Backend در دسترس نیست · سرویس محلی را اجرا کن"}<span className="footer-right">اطلاعات روی دستگاه تو</span></footer>
+    </div></section>
+  </main>;
 }
