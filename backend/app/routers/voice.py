@@ -3,7 +3,15 @@ import os
 import tempfile
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import FileResponse
+from starlette.background import BackgroundTask
+from sqlalchemy.orm import Session
+
+from app.database import SessionLocal
+from app.models import Companion
+from app.schemas import VoiceSynthesizeRequest
+from app.services.local_tts import LocalTTSUnavailable, list_local_voices, synthesize_piper
 
 from app.services.local_voice import (
     ALLOWED_AUDIO_TYPES,
@@ -14,6 +22,54 @@ from app.services.local_voice import (
 )
 
 router = APIRouter(prefix="/api/voice", tags=["local voice"])
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@router.get("/tts/voices")
+def local_tts_voices():
+    from app.core.config import settings
+
+    voices = list_local_voices()
+    return {
+        "engine": "piper-local",
+        "configured": bool(voices),
+        "voices": voices,
+        "remote_processing": False,
+        "model_directory": settings.voice_tts_model_dir,
+    }
+
+
+@router.post("/tts/synthesize")
+def synthesize_companion_voice(payload: VoiceSynthesizeRequest, db: Session = Depends(get_db)):
+    companion = db.get(Companion, payload.companion_id)
+    if not companion:
+        raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
+    personality = companion.personality_config or {}
+    voice_model = personality.get("voice_model", "")
+    if not voice_model:
+        raise HTTPException(status_code=400, detail="برای این شخصیت هنوز صدای محلی انتخاب نشده است.")
+    output_path = None
+    try:
+        output_path = synthesize_piper(payload.text, voice_model)
+        return FileResponse(
+            output_path,
+            media_type="audio/wav",
+            filename="companion-voice.wav",
+            background=BackgroundTask(lambda: os.unlink(output_path) if output_path and os.path.exists(output_path) else None),
+        )
+    except LocalTTSUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 
 @router.get("/status")
