@@ -9,6 +9,10 @@ Phase 1 scaffold:
 - FastAPI backend
 - SQLite local database
 - Local-only development endpoints
+- Companion creation and editing API
+- Persistent chat sessions and message history
+- OpenAI-compatible API adapter
+- Per-companion saved memory CRUD and memory context injection
 - No public registration or multi-user system
 
 ## Requirements
