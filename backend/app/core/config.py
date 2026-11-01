@@ -2,7 +2,6 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
@@ -14,6 +13,8 @@ class Settings(BaseSettings):
     ai_provider: str = ""
     ai_api_key: str = ""
     ai_model: str = ""
+    ai_base_url: str = "https://api.openai.com/v1"
+    ai_timeout_seconds: int = 90
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
