@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import Companion, ConversationSession
+from app.routers.assets import _remove_local_avatar
 from app.schemas import CompanionCreate, CompanionRead, CompanionUpdate, SessionRead
 
 router = APIRouter(prefix="/api/companions", tags=["companions"])
@@ -44,9 +45,13 @@ def update_companion(companion_id: str, payload: CompanionUpdate, db: Session = 
     companion = db.get(Companion, companion_id)
     if not companion:
         raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
-    for key, value in payload.model_dump(exclude_unset=True).items():
+    changes = payload.model_dump(exclude_unset=True)
+    previous_avatar = companion.avatar_url
+    for key, value in changes.items():
         setattr(companion, key, value)
     db.commit()
+    if "avatar_url" in changes and changes["avatar_url"] != previous_avatar:
+        _remove_local_avatar(previous_avatar)
     db.refresh(companion)
     return companion
 
@@ -56,8 +61,10 @@ def delete_companion(companion_id: str, db: Session = Depends(get_db)):
     companion = db.get(Companion, companion_id)
     if not companion:
         raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
+    previous_avatar = companion.avatar_url
     db.delete(companion)
     db.commit()
+    _remove_local_avatar(previous_avatar)
 
 
 @router.get("/{companion_id}/sessions", response_model=list[SessionRead])
