@@ -9,7 +9,8 @@ Current implementation:
 - FastAPI backend
 - SQLite local database
 - Local-only development endpoints
-- Companion creation and editing API\n- Personality Studio with presets and behavior sliders
+- Companion creation and editing API
+- Personality Studio with presets and behavior sliders
 - Persistent chat sessions and message history
 - OpenAI-compatible API adapter
 - Per-companion saved memory CRUD and memory context injection
