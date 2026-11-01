@@ -4,7 +4,6 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.storage import AVATAR_DIRECTORY, MEDIA_DIRECTORY
@@ -109,29 +108,3 @@ def delete_companion_avatar(companion_id: str, db: Session = Depends(get_db)):
     db.commit()
     _remove_local_avatar(previous_url)
 
-
-@router.get("/inventory")
-def list_companion_assets(db: Session = Depends(get_db)):
-    companions = db.scalars(
-        select(Companion).where(Companion.avatar_url.is_not(None)).order_by(Companion.created_at.desc())
-    ).all()
-    items = []
-    for companion in companions:
-        url = companion.avatar_url or ""
-        is_local = url.startswith("/media/avatars/")
-        size = None
-        exists = True
-        if is_local:
-            filename = url.removeprefix("/media/avatars/")
-            path = (AVATAR_DIRECTORY / filename).resolve() if Path(filename).name == filename else None
-            exists = bool(path and path.parent == AVATAR_DIRECTORY.resolve() and path.is_file())
-            size = path.stat().st_size if exists and path else None
-        items.append({
-            "companion_id": companion.id,
-            "companion_name": companion.name,
-            "avatar_url": url,
-            "storage": "local" if is_local else "external",
-            "exists": exists,
-            "size_bytes": size,
-        })
-    return {"items": items, "total": len(items)}
