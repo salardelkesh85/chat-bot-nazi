@@ -30,7 +30,9 @@ type EmotionalState = { mood:string; closeness:number; trust:number; energy:numb
 type TimelineEvent = { id:string; title:string; description:string; event_type:string; occurred_at:string };
 type ConversationSummary = { id:string; session_id:string; summary:string; message_count:number; updated_at:string };
 type CompanionPreference = { id:string; companion_id:string; category:string; content:string; source_session_id:string|null; confirmed_at:string; created_at:string };
-type InsightSuggestions = { preferences:{category:string;content:string}[]; events:{title:string;description:string;event_type:string}[] };\ntype SystemStatus = { database:string; database_bytes:number; media_files:number; avatar_files:number; safety_backups:number; last_safety_backup:string|null; backup_format_version:number; local_only:boolean };\ntype SystemAsset = { companion_id:string; companion_name:string; avatar_url:string; storage:"local"|"external"; exists:boolean; size_bytes:number|null };
+type InsightSuggestions = { preferences:{category:string;content:string}[]; events:{title:string;description:string;event_type:string}[] };
+type SystemStatus = { database:string; database_bytes:number; media_files:number; avatar_files:number; safety_backups:number; last_safety_backup:string|null; backup_format_version:number; local_only:boolean };
+type SystemAsset = { companion_id:string; companion_name:string; avatar_url:string; storage:"local"|"external"; exists:boolean; size_bytes:number|null };
 
 async function api<T>(path:string, options:RequestInit={}):Promise<T>{
   const response=await fetch(path,{...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
@@ -59,7 +61,14 @@ export default function App(){
   const [approvedPreferences,setApprovedPreferences]=useState<CompanionPreference[]>([]);
   const [insightSuggestions,setInsightSuggestions]=useState<InsightSuggestions>({preferences:[],events:[]});
   const [insightBusy,setInsightBusy]=useState(false);
-  const [preferenceDraft,setPreferenceDraft]=useState({category:"communication_style",content:""});\n  const [systemStatus,setSystemStatus]=useState<SystemStatus|null>(null);\n  const [systemAssets,setSystemAssets]=useState<SystemAsset[]>([]);\n  const [backupBusy,setBackupBusy]=useState(false);\n  const [restoreBusy,setRestoreBusy]=useState(false);\n  const [restoreFile,setRestoreFile]=useState<File|null>(null);\n  const [avatarFile,setAvatarFile]=useState<File|null>(null);\n  const [avatarPreview,setAvatarPreview]=useState("");
+  const [preferenceDraft,setPreferenceDraft]=useState({category:"communication_style",content:""});
+  const [systemStatus,setSystemStatus]=useState<SystemStatus|null>(null);
+  const [systemAssets,setSystemAssets]=useState<SystemAsset[]>([]);
+  const [backupBusy,setBackupBusy]=useState(false);
+  const [restoreBusy,setRestoreBusy]=useState(false);
+  const [restoreFile,setRestoreFile]=useState<File|null>(null);
+  const [avatarFile,setAvatarFile]=useState<File|null>(null);
+  const [avatarPreview,setAvatarPreview]=useState("");
   const [summaryBusy,setSummaryBusy]=useState(false);
   const [editingMemoryId,setEditingMemoryId]=useState<string|null>(null);
   const [memoryDraft,setMemoryDraft]=useState({category:"personal_context",content:"",importance:3});
@@ -188,7 +197,8 @@ export default function App(){
   };
 
   const load=async()=>{try{const [list,h,p]=await Promise.all([api<Companion[]>("/api/companions"),api<{status:string}>("/api/health"),api<{configured:boolean;model:string}>("/api/settings/provider")]);setCompanions(list);setSelected(current=>current??list[0]??null);if(list.length){api<Session[]>(`/api/companions/${list[0].id}/sessions`).then(setSessions).catch(()=>setSessions([]));}setHealth(h.status==="ok");setProvider(p);api<SystemStatus>("/api/system/status").then(setSystemStatus).catch(()=>setSystemStatus(null));api<{items:SystemAsset[] }>("/api/system/assets").then(result=>setSystemAssets(result.items)).catch(()=>setSystemAssets([]));}catch{setHealth(false);}};
-  useEffect(()=>{load();},[]);\n  useEffect(()=>{if(!avatarFile){setAvatarPreview("");return;}const url=URL.createObjectURL(avatarFile);setAvatarPreview(url);return ()=>URL.revokeObjectURL(url);},[avatarFile]);
+  useEffect(()=>{load();},[]);
+  useEffect(()=>{if(!avatarFile){setAvatarPreview("");return;}const url=URL.createObjectURL(avatarFile);setAvatarPreview(url);return ()=>URL.revokeObjectURL(url);},[avatarFile]);
   useEffect(()=>{api<{configured:boolean}>("/api/voice/status").then(status=>setLocalVoiceConfigured(status.configured)).catch(()=>setLocalVoiceConfigured(false));},[]);
   useEffect(()=>{api<{configured:boolean;voices:{id:string;name:string}[]}>("/api/voice/tts/voices").then(result=>{setTtsVoices(result.voices);setLocalTtsConfigured(result.configured);}).catch(()=>{setTtsVoices([]);setLocalTtsConfigured(false);});},[]);
   const refreshSystem=async()=>{
@@ -329,7 +339,8 @@ export default function App(){
     <aside className="sidebar"><div className="brand"><span className="brand-mark"><Heart size={19} fill="currentColor"/></span><span>NAZI <b>AI</b></span></div><div className="side-label">فضای شخصی</div>
       <button className={view==="home"?"nav-item active":"nav-item"} onClick={()=>setView("home")}><MessageCircle size={17}/> داشبورد</button>
       <button className="nav-item" onClick={()=>setView("create")}><Heart size={17}/> ساخت شخصیت</button>
-      <button className="nav-item" onClick={()=>setView("settings")}><Settings size={17}/> تنظیمات API</button>\n      <button className={view==="system"?"nav-item active":"nav-item"} onClick={()=>setView("system")}><Archive size={17}/> پشتیبان و فایل‌ها</button>
+      <button className="nav-item" onClick={()=>setView("settings")}><Settings size={17}/> تنظیمات API</button>
+      <button className={view==="system"?"nav-item active":"nav-item"} onClick={()=>setView("system")}><Archive size={17}/> پشتیبان و فایل‌ها</button>
       <div className="side-bottom"><div className="privacy"><ShieldCheck size={17}/><span><b>فضای خصوصی</b><small>اجرا روی همین دستگاه</small></span></div><div className="version">NAZI AI · LOCAL BUILD 0.2</div></div>
     </aside>
     <section className="main-panel"><header className="topbar"><span>دستیار هوشمند شخصی</span><div className="local-pill"><i/> LOCAL MODE</div></header>
