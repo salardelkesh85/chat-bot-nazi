@@ -31,9 +31,13 @@ def ensure_sqlite_compatibility() -> None:
     from sqlalchemy import inspect, text
 
     inspector = inspect(engine)
-    if "companion_memories" not in inspector.get_table_names():
-        return
-    columns = {column["name"] for column in inspector.get_columns("companion_memories")}
-    if "embedding" not in columns:
-        with engine.begin() as connection:
-            connection.execute(text("ALTER TABLE companion_memories ADD COLUMN embedding JSON"))
+    tables = set(inspector.get_table_names())
+    with engine.begin() as connection:
+        if "companion_memories" in tables:
+            memory_columns = {column["name"] for column in inspector.get_columns("companion_memories")}
+            if "embedding" not in memory_columns:
+                connection.execute(text("ALTER TABLE companion_memories ADD COLUMN embedding JSON"))
+        if "companions" in tables:
+            companion_columns = {column["name"] for column in inspector.get_columns("companions")}
+            if "personality_config" not in companion_columns:
+                connection.execute(text("ALTER TABLE companions ADD COLUMN personality_config JSON NOT NULL DEFAULT '{}')")
