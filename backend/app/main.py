@@ -3,10 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import models  # noqa: F401
 from app.core.config import settings
-from app.database import Base, engine
+from app.database import Base, engine, ensure_sqlite_compatibility
 from app.routers import chat, companions, memories, emotional_state, timeline
 
 Base.metadata.create_all(bind=engine)
+ensure_sqlite_compatibility()
 
 app = FastAPI(
     title=settings.app_name,
