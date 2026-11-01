@@ -24,7 +24,8 @@
 - [x] AI-generated memory suggestions
 - [x] Explicit user approval before saving suggested memories
 - [x] Memory vault UI
-- [ ] Semantic/vector retrieval
+- [x] Optional local multilingual embedding pipeline and semantic retrieval fallback
+- [ ] Bundle and verify local embedding model weights on target Windows machine
 - [ ] Automatic conversation summaries
 - [ ] Background memory consolidation
 
