@@ -8,9 +8,9 @@ from collections.abc import Iterable
 
 from app.services.semantic_memory import cosine_similarity, embed_text
 
-_TOKEN_RE = re.compile(r"[\\wآ-ی]{2,}", re.UNICODE)
+_TOKEN_RE = re.compile(r"[\wآ-ی]{2,}", re.UNICODE)
 _NEGATION_RE = re.compile(
-    r"(?:^|\\s)(?:نه|نیست\\w*|ندار\\w*|نمی\\s*\\w+|هرگز|هیچ\\s*وقت)(?:$|\\s)"
+    r"(?:^|\s)(?:نه|نیست\w*|ندار\w*|نمی\s*\w+|هرگز|هیچ\s*وقت)(?:$|\s)"
 )
 _STOP_WORDS = {
     "من", "تو", "او", "ما", "شما", "آنها", "این", "آن", "را", "به", "از",
@@ -22,9 +22,9 @@ _STOP_WORDS = {
 def normalize_persian(text: str) -> str:
     value = (text or "").casefold().replace("ي", "ی").replace("ك", "ک")
     value = value.replace("\u200c", " ").replace("\u200f", " ")
-    value = re.sub(r"[\\u064b-\\u065f\\u0670]", "", value)
-    value = re.sub(r"[^\\wآ-ی\\s]", " ", value)
-    return re.sub(r"\\s+", " ", value).strip()
+    value = re.sub(r"[\u064b-\u065f\u0670]", "", value)
+    value = re.sub(r"[^\wآ-ی\s]", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
 
 
 def _has_negation(text: str) -> bool:
@@ -33,7 +33,7 @@ def _has_negation(text: str) -> bool:
 
 def _canonical_tokens(text: str) -> set[str]:
     value = normalize_persian(text)
-    value = re.sub(r"نمی\\s*([آ-ی]+)", r"\\1", value)
+    value = re.sub(r"نمی\s*([آ-ی]+)", r"\1", value)
     for negative, positive in (
         ("ندارم", "دارم"),
         ("نداری", "داری"),
