@@ -3,7 +3,6 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import shutil
 import sqlite3
 import stat
 import zipfile
@@ -156,6 +155,8 @@ def extract_backup_archive(archive_path: Path, staging_directory: Path) -> dict:
             manifest = json.loads(archive.read(manifest_info).decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise BackupValidationError("اطلاعات manifest قابل خواندن نیست.") from exc
+        if not isinstance(manifest, dict):
+            raise BackupValidationError("ساختار manifest معتبر نیست.")
 
         if manifest.get("format") != FORMAT_NAME or manifest.get("format_version") != FORMAT_VERSION:
             raise BackupValidationError("نسخه یا قالب فایل پشتیبان با این برنامه سازگار نیست.")
@@ -203,6 +204,10 @@ def extract_backup_archive(archive_path: Path, staging_directory: Path) -> dict:
                 raise BackupValidationError("اندازه یکی از فایل‌های پشتیبان با manifest هم‌خوانی ندارد.")
             if not isinstance(expected_hash, str) or len(expected_hash) != 64:
                 raise BackupValidationError("چک‌سام یکی از فایل‌های پشتیبان معتبر نیست.")
+            try:
+                int(expected_hash, 16)
+            except ValueError as exc:
+                raise BackupValidationError("چک‌سام یکی از فایل‌های پشتیبان معتبر نیست.") from exc
             if name == DATABASE_ARCHIVE_PATH and info.file_size > MAX_DATABASE_BYTES:
                 raise BackupValidationError("حجم دیتابیس در فایل پشتیبان بیش از حد مجاز است.")
             if name.startswith("media/"):
