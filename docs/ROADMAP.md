@@ -44,6 +44,14 @@
 - [x] Apply personality configuration consistently in chat prompt
 - [x] Per-companion relationship timeline storage and CRUD API
 - [x] Manually curated milestones and shared memories in the frontend
+- [x] Suggest shared-story events from user-authored chat messages for explicit review
+- [x] Inject confirmed relationship timeline events into future companion prompts
+- [x] Per-companion confirmed communication preference profile
+- [x] Suggest communication preferences from explicit user statements; require confirmation before saving
+- [x] Inject confirmed preferences into future chat prompts
+- [x] Preference profile UI with manual add and delete
+- [x] Preference suggestions and shared-event suggestions reviewed separately in chat
+- [ ] User-editable preference values and conflict-resolution workflow
 - [ ] More robust multilingual sentiment and context analysis
 
 ## Phase 5 — Advanced experience
