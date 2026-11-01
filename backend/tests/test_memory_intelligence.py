@@ -38,7 +38,7 @@ class MemoryIntelligenceTests(unittest.TestCase):
     @patch("app.services.memory_intelligence.embed_text", return_value=None)
     def test_related_memory_is_reviewed_without_being_called_a_conflict(self, _embed):
         existing = saved_memory("کاربر موسیقی سنتی را دوست دارد")
-        matches = find_memory_matches("کاربر موسیقی سنتی گوش می‌دهد", [existing])
+        matches = find_memory_matches("کاربر موسیقی سنتی را خیلی دوست دارد", [existing])
         self.assertEqual(matches[0]["kind"], "related")
 
     def test_memory_layer_is_derived_from_category(self):
