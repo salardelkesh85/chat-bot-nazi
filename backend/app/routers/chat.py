@@ -9,7 +9,8 @@ from app.database import SessionLocal
 from app.models import ChatMessage, Companion, CompanionMemory, CompanionEmotionalState, ConversationSession, ConversationSummary, CompanionPreference, RelationshipEvent
 from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates, summarize_conversation, extract_companion_insights
 from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage, CompanionInsightSuggestions
-from app.services.memory_retrieval import rank_memories
+from app.services.memory_retrieval import rank_conversation_messages, rank_memories
+from app.services.semantic_memory import embed_text
 from app.services.emotional_engine import update_emotional_state, describe_state
 from app.services.semantic_memory import semantic_available, MODEL_DIR
 
@@ -51,7 +52,12 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
 
     if session.title == "گفت‌وگوی جدید":
         session.title = payload.content.strip()[:60] or "گفت‌وگوی جدید"
-    user_message = ChatMessage(session_id=session_id, role="user", content=payload.content.strip())
+    user_message = ChatMessage(
+        session_id=session_id,
+        role="user",
+        content=payload.content.strip(),
+        embedding=embed_text(payload.content.strip()),
+    )
     db.add(user_message)
     db.commit()
     db.refresh(user_message)
@@ -79,6 +85,24 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
         item.last_accessed_at = accessed_at
     if memories:
         db.commit()
+
+    prior_message_rows = db.execute(
+        select(ChatMessage, ConversationSession.title)
+        .join(ConversationSession, ChatMessage.session_id == ConversationSession.id)
+        .where(
+            ConversationSession.companion_id == companion.id,
+            ChatMessage.session_id != session_id,
+        )
+        .order_by(ChatMessage.created_at.desc())
+    ).all()
+    prior_messages = [row[0] for row in prior_message_rows]
+    prior_titles = {row[0].session_id: row[1] for row in prior_message_rows}
+    recalled_messages = rank_conversation_messages(prior_messages, payload.content, limit=6)
+    conversation_recall_context = "\n".join(
+        f"- [{prior_titles.get(item.session_id, 'گفت‌وگوی قبلی')} · {'کاربر' if item.role == 'user' else 'نازی'}] {item.content[:900]}"
+        for item in recalled_messages
+    )
+
     prior_summaries = db.scalars(
         select(ConversationSummary)
         .where(
@@ -134,6 +158,8 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
         f"Interests: {', '.join(companion.interests or [])}\n"
         f"Character instructions: {companion.personality_prompt}\n"
         f"Retrieved long-term memory (only facts relevant to the current message):\n{memory_text or 'No relevant saved memories were found.'}\n\n"
+        f"Semantically retrieved excerpts from any earlier conversation:\n{conversation_recall_context or 'No relevant earlier message was found.'}\n"
+        "These are selected excerpts, not complete transcripts. Use them only when they directly help answer.\n"
         f"Episodic memory from earlier conversation summaries:\n{summary_context or 'No previous conversation summaries.'}\n"
         "The current message history supplied after this system prompt is the short-term working memory. "
         "Use long-term facts, episodic summaries, and confirmed preferences as separate context layers. "
@@ -152,7 +178,12 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     except ProviderRequestError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
-    assistant_message = ChatMessage(session_id=session_id, role="assistant", content=answer)
+    assistant_message = ChatMessage(
+        session_id=session_id,
+        role="assistant",
+        content=answer,
+        embedding=embed_text(answer),
+    )
     db.add(assistant_message)
     db.commit()
     db.refresh(assistant_message)
