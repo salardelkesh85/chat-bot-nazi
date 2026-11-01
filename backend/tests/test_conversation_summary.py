@@ -26,7 +26,7 @@ class ConversationSummaryTests(unittest.IsolatedAsyncioTestCase):
     def test_summary_model_has_unique_session_constraint(self):
         table = ConversationSummary.__table__
         self.assertIn("session_id", table.c)
-        self.assertTrue(any(constraint.__class__.__name__ == "UniqueConstraint" for constraint in table.constraints))
+        self.assertTrue(table.c.session_id.unique)
 
 
 if __name__ == "__main__":
