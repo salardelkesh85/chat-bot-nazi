@@ -64,7 +64,8 @@ export default function App(){
   const [localRecording,setLocalRecording]=useState(false);
   const mediaRecorderRef=useRef<MediaRecorder|null>(null);
   const audioChunksRef=useRef<Blob[]>([]);
-  const [autoSpeak,setAutoSpeak]=useState(false);\n  const [localVoiceConfigured,setLocalVoiceConfigured]=useState(false);
+  const [autoSpeak,setAutoSpeak]=useState(false);
+  const [localVoiceConfigured,setLocalVoiceConfigured]=useState(false);
   const recognitionRef=useRef<SpeechRecognitionLike|null>(null);
   const applyPreset=(preset:PersonalityConfig["preset"])=>{
     const presets:Record<PersonalityConfig["preset"],PersonalityConfig>={
@@ -157,7 +158,8 @@ export default function App(){
   };
 
   const load=async()=>{try{const [list,h,p]=await Promise.all([api<Companion[]>("/api/companions"),api<{status:string}>("/api/health"),api<{configured:boolean;model:string}>("/api/settings/provider")]);setCompanions(list);setSelected(current=>current??list[0]??null);if(list.length){api<Session[]>(`/api/companions/${list[0].id}/sessions`).then(setSessions).catch(()=>setSessions([]));}setHealth(h.status==="ok");setProvider(p);}catch{setHealth(false);}};
-  useEffect(()=>{load();},[]);\n  useEffect(()=>{api<{configured:boolean}>("/api/voice/status").then(status=>setLocalVoiceConfigured(status.configured)).catch(()=>setLocalVoiceConfigured(false));},[]);
+  useEffect(()=>{load();},[]);
+  useEffect(()=>{api<{configured:boolean}>("/api/voice/status").then(status=>setLocalVoiceConfigured(status.configured)).catch(()=>setLocalVoiceConfigured(false));},[]);
   const editCompanion=(c:Companion)=>{setEditingId(c.id);setForm({name:c.name,age:c.age,short_description:c.short_description,personality_prompt:c.personality_prompt,traits:c.traits.join("، "),interests:c.interests.join("، "),avatar_url:c.avatar_url||""});setPersonality(c.personality_config||defaultPersonality);setView("edit");setError("");};
   const updateCompanion=async(e:FormEvent)=>{e.preventDefault();if(!editingId)return;setBusy(true);setError("");try{const updated=await api<Companion>(`/api/companions/${editingId}`,{method:"PATCH",body:JSON.stringify({...form,personality_config:personality,traits:form.traits.split(/[،,]/).map(x=>x.trim()).filter(Boolean),interests:form.interests.split(/[،,]/).map(x=>x.trim()).filter(Boolean)})});setCompanions(v=>v.map(c=>c.id===updated.id?updated:c));setSelected(updated);setView("home");setEditingId(null);}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
   const createCompanion=async(e:FormEvent)=>{e.preventDefault();setBusy(true);setError("");try{const c=await api<Companion>("/api/companions",{method:"POST",body:JSON.stringify({...form,personality_config:personality,traits:form.traits.split(/[،,]/).map(x=>x.trim()).filter(Boolean),interests:form.interests.split(/[،,]/).map(x=>x.trim()).filter(Boolean)})});setCompanions(v=>[c,...v]);setSelected(c);setView("home");setForm({name:"",age:24,short_description:"",personality_prompt:"",traits:"مهربان، شوخ‌طبع",interests:"موسیقی، فیلم، سفر",avatar_url:""});setPersonality(defaultPersonality);}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
