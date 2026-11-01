@@ -21,6 +21,7 @@ class Companion(Base):
     personality_prompt: Mapped[str] = mapped_column(Text, default="", nullable=False)
     traits: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     interests: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    personality_config: Mapped[dict] = mapped_column(JSON, default=dict, nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     sessions: Mapped[list["ConversationSession"]] = relationship(back_populates="companion", cascade="all, delete-orphan")
