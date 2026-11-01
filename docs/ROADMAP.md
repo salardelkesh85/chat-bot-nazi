@@ -48,7 +48,9 @@
 - [ ] Streaming chat responses
 - [x] Browser-based Persian text-to-speech playback for assistant messages
 - [x] Per-chat speech rate and pitch controls
-- [ ] Voice input (speech-to-text)
+- [x] Browser SpeechRecognition microphone input with Persian fa-IR recognition
+- [x] Optional automatic speech playback after AI replies
+- [ ] Fully offline local speech-to-text engine (replace browser-dependent recognition)
 - [ ] Offline local neural TTS engine
 - [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
