@@ -49,9 +49,12 @@
 - [x] Browser-based Persian text-to-speech playback for assistant messages
 - [x] Per-chat speech rate and pitch controls
 - [x] Browser SpeechRecognition microphone input with Persian fa-IR recognition
+- [x] Optional local faster-whisper transcription API with 20 MB upload cap
+- [x] Local microphone recording UI that sends audio only to the local backend
+- [x] Windows setup guide for offline model loading
 - [x] Optional automatic speech playback after AI replies
 - [ ] Fully offline local speech-to-text engine (replace browser-dependent recognition)
-- [ ] Offline local neural TTS engine
+- [ ] Offline local neural TTS engine (next voice milestone)
 - [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
 
