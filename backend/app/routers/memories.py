@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models import Companion, CompanionMemory
 from app.schemas import MemoryCreate, MemoryRead
+from app.services.semantic_memory import embed_text
 
 router = APIRouter(prefix="/api/companions/{companion_id}/memories", tags=["memory"])
 
@@ -29,6 +30,7 @@ def create_memory(companion_id: str, payload: MemoryCreate, db: Session = Depend
     if not db.get(Companion, companion_id):
         raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
     memory = CompanionMemory(companion_id=companion_id, **payload.model_dump())
+    memory.embedding = embed_text(memory.content)
     db.add(memory)
     db.commit()
     db.refresh(memory)
