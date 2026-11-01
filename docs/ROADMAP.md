@@ -54,7 +54,11 @@
 - [x] Windows setup guide for offline model loading
 - [x] Optional automatic speech playback after AI replies
 - [ ] Fully offline local speech-to-text engine (replace browser-dependent recognition)
-- [ ] Offline local neural TTS engine (next voice milestone)
+- [x] Local Piper TTS adapter and synthesis endpoint
+- [x] Per-companion local voice selection stored in personality configuration
+- [x] Local WAV playback and automatic local-voice preference when selected
+- [ ] Validate and select a high-quality Persian Piper voice model on the target Windows laptop
+- [ ] Offline local neural TTS performance and quality tuning
 - [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
 
