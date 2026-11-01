@@ -76,7 +76,7 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
         "preference": "ترجیحات تأییدشده",
     }
     memory_text = "\n".join(
-        f"- [{memory_layer_labels.get(item.layer, 'حافظه بلندمدت')} · {item.category} · اطمینان {round(item.confidence * 100)}٪] {item.content}"
+        f"- [{memory_layer_labels.get(item.layer, 'حافظه بلندمدت')} · {item.category}] {item.content}"
         for item in memories
     )
     accessed_at = datetime.now(timezone.utc)
