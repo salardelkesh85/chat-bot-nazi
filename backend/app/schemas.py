@@ -99,6 +99,10 @@ class EmotionalStateRead(BaseModel):
     interaction_count: int
     updated_at: datetime
 
+class VoiceSynthesizeRequest(BaseModel):
+    companion_id: str = Field(min_length=1, max_length=36)
+    text: str = Field(min_length=1, max_length=5000)
+
 class ProviderStatus(BaseModel):
     configured: bool
     provider: str
