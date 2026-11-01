@@ -23,10 +23,8 @@ class Companion(Base):
     interests: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-
-    sessions: Mapped[list["ConversationSession"]] = relationship(
-        back_populates="companion", cascade="all, delete-orphan"
-    )
+    sessions: Mapped[list["ConversationSession"]] = relationship(back_populates="companion", cascade="all, delete-orphan")
+    memories: Mapped[list["CompanionMemory"]] = relationship(back_populates="companion", cascade="all, delete-orphan")
 
 
 class ConversationSession(Base):
@@ -36,11 +34,8 @@ class ConversationSession(Base):
     companion_id: Mapped[str] = mapped_column(ForeignKey("companions.id", ondelete="CASCADE"), nullable=False)
     title: Mapped[str] = mapped_column(String(160), default="گفت‌وگوی جدید", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-
     companion: Mapped[Companion] = relationship(back_populates="sessions")
-    messages: Mapped[list["ChatMessage"]] = relationship(
-        back_populates="session", cascade="all, delete-orphan", order_by="ChatMessage.created_at"
-    )
+    messages: Mapped[list["ChatMessage"]] = relationship(back_populates="session", cascade="all, delete-orphan", order_by="ChatMessage.created_at")
 
 
 class ChatMessage(Base):
@@ -51,5 +46,16 @@ class ChatMessage(Base):
     role: Mapped[str] = mapped_column(String(20), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
-
     session: Mapped[ConversationSession] = relationship(back_populates="messages")
+
+
+class CompanionMemory(Base):
+    __tablename__ = "companion_memories"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    companion_id: Mapped[str] = mapped_column(ForeignKey("companions.id", ondelete="CASCADE"), nullable=False)
+    category: Mapped[str] = mapped_column(String(40), default="shared", nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    importance: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    companion: Mapped[Companion] = relationship(back_populates="memories")
