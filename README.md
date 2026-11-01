@@ -14,7 +14,7 @@ Current implementation:
 - OpenAI-compatible API adapter
 - Per-companion saved memory CRUD and memory context injection
 - AI memory suggestions with owner approval
-- Lightweight local relevance ranking for memory retrieval
+- Lightweight local relevance ranking with optional multilingual local vector embeddings
 - Conversation history and resume
 - No public registration or multi-user system
 
@@ -58,15 +58,15 @@ Open http://127.0.0.1:5173
 - Never commit `.env`, API keys, the database, or private memories.
 - When an external AI API is configured, message context sent for inference leaves the computer and is processed by that provider.
 
-## Current memory retrieval note
+## Local semantic memory
 
-Memory retrieval currently uses a lightweight local keyword-overlap and importance ranking. It does not yet use vector embeddings. Saved memories are selected separately for each companion.
+The backend supports optional on-device multilingual embeddings. Install `backend/requirements-embeddings.txt` and place the model files in `backend/models/paraphrase-multilingual-MiniLM-L12-v2`. The app uses local-only model loading and falls back to keyword retrieval if the model is not installed. See [docs/SEMANTIC_MEMORY.md](docs/SEMANTIC_MEMORY.md). The first-time model acquisition is a separate manual step; model weights are excluded from Git.
 
 ## Planned modules
 
 1. Companion/personality creator
 2. Chat and conversation history
-3. Long-term memory and lexical relevance retrieval
+3. Long-term memory and local semantic/lexical retrieval
 4. AI provider adapters
 5. Local settings, export, and backup
 
