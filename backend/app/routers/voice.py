@@ -49,7 +49,14 @@ async def transcribe_audio(
         except ValueError:
             raise HTTPException(status_code=400, detail="طول درخواست نامعتبر است.")
 
-    audio_bytes = await request.body()
+    chunks = []
+    total_size = 0
+    async for chunk in request.stream():
+        total_size += len(chunk)
+        if total_size > MAX_AUDIO_BYTES:
+            raise HTTPException(status_code=413, detail="حجم فایل صوتی نباید بیشتر از ۲۰ مگابایت باشد.")
+        chunks.append(chunk)
+    audio_bytes = b"".join(chunks)
     try:
         validate_audio_upload(content_type, len(audio_bytes))
     except ValueError as exc:
