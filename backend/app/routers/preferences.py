@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import Companion, CompanionPreference
+from app.models import Companion, CompanionPreference, ConversationSession
 from app.schemas import PreferenceCreate, PreferenceRead
 
 router = APIRouter(prefix="/api/companions/{companion_id}/preferences", tags=["companion-preferences"])
