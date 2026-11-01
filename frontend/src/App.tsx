@@ -59,7 +59,10 @@ export default function App(){
   const [personality,setPersonality]=useState<PersonalityConfig>(defaultPersonality);
   const [speechRate,setSpeechRate]=useState(1);
   const [speechPitch,setSpeechPitch]=useState(1);
-  const [speaking,setSpeaking]=useState(false);\n  const [listening,setListening]=useState(false);\n  const [autoSpeak,setAutoSpeak]=useState(false);\n  const recognitionRef=useRef<SpeechRecognitionLike|null>(null);
+  const [speaking,setSpeaking]=useState(false);
+  const [listening,setListening]=useState(false);
+  const [autoSpeak,setAutoSpeak]=useState(false);
+  const recognitionRef=useRef<SpeechRecognitionLike|null>(null);
   const applyPreset=(preset:PersonalityConfig["preset"])=>{
     const presets:Record<PersonalityConfig["preset"],PersonalityConfig>={
       custom:{...personality,preset:"custom"},
