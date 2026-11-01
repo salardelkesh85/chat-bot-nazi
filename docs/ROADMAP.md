@@ -2,29 +2,40 @@
 
 ## Phase 1 — Foundation
 - [x] Repository scaffold
-- [x] React + Vite shell
-- [x] FastAPI local service
+- [x] React + Vite local frontend
+- [x] FastAPI local backend
 - [x] SQLite database initialization
 - [x] Local health endpoint
 
 ## Phase 2 — Companion creation and chat
 - [x] Companion data model and CRUD API
-- [x] Companion personality fields (adult fictional characters only)
-- [x] Chat sessions and persistent message history
+- [x] Personality fields and custom prompt
+- [x] Persistent chat sessions and messages
 - [x] OpenAI-compatible provider adapter
-- [x] Provider configuration status endpoint
-- [ ] Connect frontend companion creator and chat UI
-- [ ] Verify API key and model configuration locally
+- [x] Frontend companion creator and chat UI
+- [x] Conversation history and resume
+- [ ] Verify provider configuration and chat locally
 
-## Phase 3 — Long-term memory
-- [ ] Memory schema and categories
-- [ ] Memory extraction proposals
-- [ ] User review, edit, and delete
-- [ ] Semantic retrieval
-- [ ] Conversation summaries
+## Phase 3 — Memory foundation
+- [x] Per-companion memory storage
+- [x] Memory list and delete APIs
+- [x] Memory context injected into chat prompts
+- [x] AI-generated memory suggestions
+- [x] Explicit user approval before saving suggested memories
+- [x] Memory vault UI
+- [ ] Semantic/vector retrieval
+- [ ] Automatic conversation summaries
+- [ ] Background memory consolidation
 
 ## Phase 4 — Advanced experience
-- [ ] Avatar management
+- [ ] Avatar upload and local image management
+- [ ] Streaming chat responses
 - [ ] Voice input/output
-- [ ] Backup and restore
+- [ ] Local backup and restore workflow
 - [ ] Usage and latency diagnostics
+
+## Phase 5 — Reliability
+- [ ] Automated backend and frontend tests
+- [ ] Windows launch scripts
+- [ ] Dependency lockfiles
+- [ ] Local installation and smoke test
