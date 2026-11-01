@@ -58,6 +58,7 @@ class CompanionMemory(Base):
     category: Mapped[str] = mapped_column(String(40), default="shared", nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     importance: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    embedding: Mapped[list | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     companion: Mapped[Companion] = relationship(back_populates="memories")
 
