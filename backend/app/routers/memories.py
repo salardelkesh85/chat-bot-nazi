@@ -117,6 +117,10 @@ def rebuild_memory_index(companion_id: str, db: Session = Depends(get_db)):
 def check_memory(companion_id: str, payload: MemoryCreate, db: Session = Depends(get_db)):
     if not db.get(Companion, companion_id):
         raise HTTPException(status_code=404, detail="شخصیت پیدا نشد.")
+    if payload.source_session_id:
+        source_session = db.get(ConversationSession, payload.source_session_id)
+        if not source_session or source_session.companion_id != companion_id:
+            raise HTTPException(status_code=422, detail="گفت‌وگوی منبع متعلق به این شخصیت نیست.")
     matches = find_memory_matches(
         payload.content.strip(),
         db.scalars(
@@ -179,6 +183,10 @@ def update_memory(companion_id: str, memory_id: str, payload: MemoryUpdate, db: 
     if not memory or memory.companion_id != companion_id:
         raise HTTPException(status_code=404, detail="خاطره پیدا نشد.")
     changes = payload.model_dump(exclude_unset=True)
+    if changes.get("source_session_id"):
+        source_session = db.get(ConversationSession, changes["source_session_id"])
+        if not source_session or source_session.companion_id != companion_id:
+            raise HTTPException(status_code=422, detail="گفت‌وگوی منبع متعلق به این شخصیت نیست.")
     if "content" in changes:
         changes["content"] = changes["content"].strip()
         if not changes["content"]:
