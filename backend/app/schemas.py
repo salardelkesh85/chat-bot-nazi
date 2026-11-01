@@ -74,6 +74,8 @@ class MemoryCreate(BaseModel):
     category: str = Field(default="personal_context", min_length=1, max_length=40)
     content: str = Field(min_length=1, max_length=3000)
     importance: int = Field(default=3, ge=1, le=5)
+    source_session_id: str | None = Field(default=None, max_length=36)
+    allow_conflicts: bool = False
 
 class MemoryUpdate(BaseModel):
     category: str | None = Field(default=None, min_length=1, max_length=40)
@@ -87,7 +89,28 @@ class MemoryRead(BaseModel):
     category: str
     content: str
     importance: int
+    layer: Literal["semantic", "episodic", "preference"]
+    confidence: float
+    source_session_id: str | None
+    access_count: int
+    last_accessed_at: datetime | None
     created_at: datetime
+    updated_at: datetime
+
+
+class MemoryConflictMatch(BaseModel):
+    memory_id: str
+    category: str
+    content: str
+    kind: Literal["duplicate", "potential_conflict", "related"]
+    similarity: float
+    reason: str
+
+
+class MemoryCheckRead(BaseModel):
+    safe_to_save: bool
+    matches: list[MemoryConflictMatch] = Field(default_factory=list)
+
 
 class MemoryCandidate(BaseModel):
     category: str
