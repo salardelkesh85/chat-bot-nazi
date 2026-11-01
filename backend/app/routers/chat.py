@@ -48,7 +48,8 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     recent.reverse()
     history = [{"role": item.role, "content": item.content} for item in recent]
 
-    memories = db.scalars(select(CompanionMemory).where(CompanionMemory.companion_id == companion.id).order_by(CompanionMemory.importance.desc(), CompanionMemory.created_at.desc()).limit(12)).all()
+    all_memories = db.scalars(select(CompanionMemory).where(CompanionMemory.companion_id == companion.id)).all()
+    memories = rank_memories(all_memories, payload.content, limit=8)
     memory_text = "\n".join(f"- [{item.category}] {item.content}" for item in memories)
 
     system_prompt = (
