@@ -98,3 +98,15 @@ class ConversationSummary(Base):
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     message_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
+
+
+class CompanionPreference(Base):
+    __tablename__ = "companion_preferences"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    companion_id: Mapped[str] = mapped_column(ForeignKey("companions.id", ondelete="CASCADE"), nullable=False, index=True)
+    category: Mapped[str] = mapped_column(String(40), default="communication_style", nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    source_session_id: Mapped[str | None] = mapped_column(ForeignKey("chat_sessions.id", ondelete="SET NULL"), nullable=True)
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, nullable=False)
