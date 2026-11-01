@@ -19,7 +19,8 @@ Nazi AI is a single-owner local application. It has no public registration, publ
 - personality: companion identity, traits, style, and user-authored prompt.
 - prompt: compose system instructions, personality, recent conversation, and retrieved memories.
 - chat: sessions, messages, streaming responses, and conversation lifecycle.
-- memory: candidate extraction, user review, persistence, semantic retrieval, and deletion.
+- memory: short-term working context, long-term semantic facts, episodic summaries, confirmed preferences, local embeddings, duplicate detection, and owner-reviewed conflict resolution.
+- recall: semantic/lexical search across historical chat messages, with local-only indexing and a lexical fallback when the optional model is absent.
 - providers: provider-neutral interface for model APIs.
 - settings: local model/provider configuration and usage controls.
 - storage: local avatar assets, media inventory, and private data paths.
