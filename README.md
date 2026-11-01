@@ -13,6 +13,7 @@ Current implementation:
 - Personality Studio with presets and behavior sliders
 - Persistent chat sessions and message history
 - OpenAI-compatible API adapter
+- Optional local Persian speech-to-text through faster-whisper (model weights installed separately)
 - Per-companion saved memory CRUD and memory context injection
 - AI memory suggestions with owner approval
 - Lightweight local relevance ranking with optional multilingual local vector embeddings
@@ -58,6 +59,10 @@ Open http://127.0.0.1:5173
 - SQLite data is stored under `backend/data/nazi_ai.db`.
 - Never commit `.env`, API keys, the database, or private memories.
 - When an external AI API is configured, message context sent for inference leaves the computer and is processed by that provider.
+
+## Local voice engine
+
+Install `backend/requirements-voice.txt` and follow [docs/LOCAL_VOICE_SETUP.md](docs/LOCAL_VOICE_SETUP.md) to enable local faster-whisper transcription. Model weights are not stored in Git and are never downloaded at runtime. Chat completion remains independently configurable.
 
 ## Local semantic memory
 
