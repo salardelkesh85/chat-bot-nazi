@@ -1,5 +1,15 @@
 from datetime import datetime
+from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+class PersonalityConfig(BaseModel):
+    preset: Literal["custom", "gentle", "playful", "romantic", "serious"] = "custom"
+    humor: int = Field(default=55, ge=0, le=100)
+    warmth: int = Field(default=70, ge=0, le=100)
+    seriousness: int = Field(default=35, ge=0, le=100)
+    expressiveness: int = Field(default=65, ge=0, le=100)
+    voice_style: str = Field(default="صمیمی و طبیعی", max_length=120)
+    backstory: str = Field(default="", max_length=4000)
 
 class CompanionCreate(BaseModel):
     name: str = Field(min_length=1, max_length=80)
@@ -8,7 +18,7 @@ class CompanionCreate(BaseModel):
     personality_prompt: str = Field(default="", max_length=12000)
     traits: list[str] = Field(default_factory=list, max_length=30)
     interests: list[str] = Field(default_factory=list, max_length=30)
-    personality_config: dict = Field(default_factory=dict)
+    personality_config: PersonalityConfig = Field(default_factory=PersonalityConfig)
     avatar_url: str | None = Field(default=None, max_length=1000)
     @field_validator("name")
     @classmethod
@@ -25,7 +35,7 @@ class CompanionUpdate(BaseModel):
     personality_prompt: str | None = Field(default=None, max_length=12000)
     traits: list[str] | None = Field(default=None, max_length=30)
     interests: list[str] | None = Field(default=None, max_length=30)
-    personality_config: dict | None = None
+    personality_config: PersonalityConfig | None = None
     avatar_url: str | None = Field(default=None, max_length=1000)
 
 class CompanionRead(BaseModel):
