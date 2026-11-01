@@ -61,6 +61,7 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     memories = rank_memories(all_memories, payload.content, limit=8)
     memory_text = "\n".join(f"- [{item.category}] {item.content}" for item in memories)
 
+    state_context = describe_state(state)
     system_prompt = (
         "You are a fictional adult AI companion. Be warm, natural, emotionally considerate, "
         "and honest that you are an AI when relevant. Never claim to be a real human. "
@@ -74,6 +75,7 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
         f"Relevant saved memories:\n{memory_text or 'No saved memories yet.'}"
     )
 
+    system_prompt = system_prompt + "\n\n" + state_context
     try:
         answer = await generate_reply(system_prompt, history)
     except ProviderNotConfigured as exc:
