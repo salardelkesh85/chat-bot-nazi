@@ -20,6 +20,9 @@ Current implementation:
 - Persistent per-session conversation summaries and cross-session context injection
 - Per-companion approved preference profiles and user-reviewed character evolution suggestions
 - Shared relationship timeline context injected into future chats
+- Layered short-term, semantic, episodic, and preference memory
+- Semantic/lexical recall across all earlier chat sessions, with local reindexing
+- Duplicate and possible contradiction checks with explicit owner review
 - Consistent SQLite ZIP backup with SHA-256 manifest validation and safe restore rollback
 - Local avatar image upload, static serving, replacement, deletion, and media inventory
 - Local backup and restore dashboard with transfer guidance
@@ -94,4 +97,4 @@ The backend supports optional on-device multilingual embeddings. Install `backen
 4. AI provider adapters
 5. Local settings, export, and backup
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/ROADMAP.md](docs/ROADMAP.md).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
