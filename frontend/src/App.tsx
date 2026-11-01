@@ -375,7 +375,7 @@ export default function App(){
     finally{setMemoryReviewBusy(false);}
   };
   const saveMemory=async(item:Candidate)=>{
-    const sourceSessionId=session?.companion_id===selected?.id?session.id:null;
+    const sourceSessionId=session&&selected&&session.companion_id===selected.id?session.id:null;
     await requestMemorySave(item,sourceSessionId,"candidate");
   };
   const confirmMemoryAsNew=async()=>{
