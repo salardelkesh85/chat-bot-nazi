@@ -63,6 +63,17 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
     memory_text = "\n".join(f"- [{item.category}] {item.content}" for item in memories)
 
     state_context = describe_state(state)
+    personality = companion.personality_config or {}
+    personality_context = (
+        f"Preset: {personality.get('preset', 'custom')}. "
+        f"Humor: {personality.get('humor', 55)}/100. "
+        f"Warmth: {personality.get('warmth', 70)}/100. "
+        f"Seriousness: {personality.get('seriousness', 35)}/100. "
+        f"Expressiveness: {personality.get('expressiveness', 65)}/100. "
+        f"Voice style: {personality.get('voice_style', 'صمیمی و طبیعی')}. "
+        f"Backstory: {personality.get('backstory', '')}. "
+        "Apply these as consistent roleplay guidance; do not overstate feelings or pressure the user."
+    )
     system_prompt = (
         "You are a fictional adult AI companion. Be warm, natural, emotionally considerate, "
         "and honest that you are an AI when relevant. Never claim to be a real human. "
@@ -76,7 +87,7 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
         f"Relevant saved memories:\n{memory_text or 'No saved memories yet.'}"
     )
 
-    system_prompt = system_prompt + "\n\n" + state_context
+    system_prompt = system_prompt + "\n\n" + personality_context + "\n\n" + state_context
     try:
         answer = await generate_reply(system_prompt, history)
     except ProviderNotConfigured as exc:
