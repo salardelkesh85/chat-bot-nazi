@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, JSON
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
@@ -60,7 +60,15 @@ class CompanionMemory(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     importance: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
     embedding: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    layer: Mapped[str] = mapped_column(String(20), default="semantic", nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, default=0.85, nullable=False)
+    source_session_id: Mapped[str | None] = mapped_column(
+        ForeignKey("chat_sessions.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    access_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_accessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now, nullable=False)
     companion: Mapped[Companion] = relationship(back_populates="memories")
 
 
