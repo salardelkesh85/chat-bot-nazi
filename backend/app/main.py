@@ -1,10 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app import models  # noqa: F401
 from app.core.config import settings
 from app.database import Base, engine, ensure_sqlite_compatibility
-from app.routers import chat, companions, memories, emotional_state, timeline, voice, preferences
+from app.core.storage import MEDIA_DIRECTORY
+from app.routers import chat, companions, memories, emotional_state, timeline, voice, preferences, assets, system
 
 Base.metadata.create_all(bind=engine)
 ensure_sqlite_compatibility()
@@ -30,6 +32,9 @@ app.include_router(emotional_state.router)
 app.include_router(timeline.router)
 app.include_router(voice.router)
 app.include_router(preferences.router)
+app.include_router(assets.router)
+app.include_router(system.router)
+app.mount("/media", StaticFiles(directory=str(MEDIA_DIRECTORY)), name="media")
 
 
 @app.get("/api/health")
