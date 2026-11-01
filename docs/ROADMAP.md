@@ -71,11 +71,17 @@
 - [x] Local WAV playback and automatic local-voice preference when selected
 - [ ] Validate and select a high-quality Persian Piper voice model on the target Windows laptop
 - [ ] Offline local neural TTS performance and quality tuning
-- [ ] Local backup and restore workflow
+- [x] Local SQLite backup archive with online database snapshot and SHA-256 checksums
+- [x] Validated restore with archive path checks, database integrity validation, and automatic pre-restore safety backup
+- [x] Restore rollback to previous database and media if installation fails
+- [x] Local avatar upload, replacement, deletion, and media inventory
+- [x] Backup and restore center in the frontend
+- [x] Windows setup and launch scripts
+- [x] Windows transfer and recovery guide
 - [ ] Usage and latency diagnostics
 
 ## Phase 6 — Reliability
 - [ ] Automated backend and frontend tests
-- [ ] Windows launch scripts
+- [x] Windows launch scripts
 - [ ] Dependency lockfiles
-- [ ] Local installation and smoke test
+- [ ] Local installation and smoke test on the target Windows laptop
