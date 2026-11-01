@@ -26,3 +26,6 @@ data/
 Thumbs.db
 .vscode/
 .idea/
+
+# Optional local embedding model weights (download separately)
+backend/models/
