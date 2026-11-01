@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import Companion, CompanionMemory
-from app.schemas import MemoryCreate, MemoryRead
+from app.schemas import MemoryCreate, MemoryRead, MemoryUpdate
 from app.services.semantic_memory import embed_text
 
 router = APIRouter(prefix="/api/companions/{companion_id}/memories", tags=["memory"])
@@ -44,3 +44,21 @@ def delete_memory(companion_id: str, memory_id: str, db: Session = Depends(get_d
         raise HTTPException(status_code=404, detail="خاطره پیدا نشد.")
     db.delete(memory)
     db.commit()
+
+
+@router.patch("/{memory_id}", response_model=MemoryRead)
+def update_memory(companion_id: str, memory_id: str, payload: MemoryUpdate, db: Session = Depends(get_db)):
+    memory = db.get(CompanionMemory, memory_id)
+    if not memory or memory.companion_id != companion_id:
+        raise HTTPException(status_code=404, detail="خاطره پیدا نشد.")
+    changes = payload.model_dump(exclude_unset=True)
+    if "content" in changes:
+        changes["content"] = changes["content"].strip()
+        if not changes["content"]:
+            raise HTTPException(status_code=422, detail="متن خاطره نمی‌تواند خالی باشد.")
+        memory.embedding = embed_text(changes["content"])
+    for key, value in changes.items():
+        setattr(memory, key, value)
+    db.commit()
+    db.refresh(memory)
+    return memory
