@@ -65,7 +65,7 @@ class SendMessage(BaseModel):
 
 
 class MemoryCreate(BaseModel):
-    category: str = Field(default="shared", min_length=1, max_length=40)
+    category: str = Field(default="personal_context", min_length=1, max_length=40)
     content: str = Field(min_length=1, max_length=3000)
     importance: int = Field(default=3, ge=1, le=5)
 
@@ -78,6 +78,12 @@ class MemoryRead(BaseModel):
     content: str
     importance: int
     created_at: datetime
+
+
+class MemoryCandidate(BaseModel):
+    category: str
+    content: str
+    importance: int
 
 
 class ProviderStatus(BaseModel):
