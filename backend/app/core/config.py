@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     voice_stt_model_path: str = str(BACKEND_DIR / "models" / "faster-whisper-small")
     voice_stt_device: str = "cpu"
     voice_stt_compute_type: str = "int8"
+    voice_tts_executable: str = "piper"
+    voice_tts_model_dir: str = str(BACKEND_DIR / "models" / "piper-voices")
+    voice_tts_timeout_seconds: int = 90
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
