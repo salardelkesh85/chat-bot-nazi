@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app import models  # noqa: F401
 from app.core.config import settings
 from app.database import Base, engine
-from app.routers import chat, companions, memories, emotional_state
+from app.routers import chat, companions, memories, emotional_state, timeline
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,6 +26,7 @@ app.include_router(companions.router)
 app.include_router(chat.router)
 app.include_router(memories.router)
 app.include_router(emotional_state.router)
+app.include_router(timeline.router)
 
 
 @app.get("/api/health")
