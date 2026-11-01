@@ -13,6 +13,7 @@
 - [x] Persistent chat sessions and messages
 - [x] OpenAI-compatible provider adapter
 - [x] Frontend companion creator and chat UI
+- [x] Edit companion name, age, description, traits, interests, and personality prompt from the dashboard
 - [x] Conversation history and resume
 - [ ] Verify provider configuration and chat locally
 
