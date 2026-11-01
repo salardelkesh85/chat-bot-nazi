@@ -24,8 +24,11 @@ type PersonalityConfig = { preset:"custom"|"gentle"|"playful"|"romantic"|"seriou
 type Companion = { id:string; name:string; age:number; short_description:string; personality_prompt:string; traits:string[]; interests:string[]; personality_config:PersonalityConfig; avatar_url?:string|null };
 type Session = { id:string; companion_id:string; title:string; created_at?:string };
 type Message = { id:string; role:string; content:string };
-type Memory = { id:string; category:string; content:string; importance:number };
+type Memory = { id:string; category:string; content:string; importance:number; layer?:"semantic"|"episodic"|"preference"; confidence?:number; source_session_id?:string|null; access_count?:number; last_accessed_at?:string|null; updated_at?:string };
 type Candidate = { category:string; content:string; importance:number };
+type MemoryMatch = { memory_id:string; category:string; content:string; kind:"duplicate"|"potential_conflict"|"related"; similarity:number; reason:string };
+type MemoryCheckResult = { safe_to_save:boolean; matches:MemoryMatch[] };
+type MemoryReview = { item:Candidate; matches:MemoryMatch[]; sourceSessionId:string|null; origin:"candidate"|"manual" };
 type EmotionalState = { mood:string; closeness:number; trust:number; energy:number; interaction_count:number };
 type TimelineEvent = { id:string; title:string; description:string; event_type:string; occurred_at:string };
 type ConversationSummary = { id:string; session_id:string; summary:string; message_count:number; updated_at:string };
@@ -55,6 +58,8 @@ export default function App(){
   const [provider,setProvider]=useState<{configured:boolean;model:string}|null>(null);
   const [memories,setMemories]=useState<Memory[]>([]);
   const [candidates,setCandidates]=useState<Candidate[]>([]);
+  const [memoryReview,setMemoryReview]=useState<MemoryReview|null>(null);
+  const [memoryReviewBusy,setMemoryReviewBusy]=useState(false);
   const [emotionalState,setEmotionalState]=useState<EmotionalState|null>(null);
   const [timelineEvents,setTimelineEvents]=useState<TimelineEvent[]>([]);
   const [conversationSummaries,setConversationSummaries]=useState<ConversationSummary[]>([]);
@@ -329,15 +334,56 @@ export default function App(){
     finally{setInsightBusy(false);}
   };
   const loadMemories=async(c:Companion)=>{setSelected(c);setError("");try{setMemories(await api<Memory[]>(`/api/companions/${c.id}/memories`));await loadConversationSummaries(c);setView("memory");}catch(e){setError((e as Error).message);}};
-  const saveMemory=async(item:Candidate)=>{if(!selected)return;try{const saved=await api<Memory>(`/api/companions/${selected.id}/memories`,{method:"POST",body:JSON.stringify(item)});setMemories(v=>[saved,...v]);setCandidates(v=>v.filter(x=>x!==item));}catch(e){setError((e as Error).message);}};
+  const persistMemory=async(item:Candidate,sourceSessionId:string|null,origin:"candidate"|"manual",allowConflicts:boolean)=>{
+    if(!selected)return;
+    const saved=await api<Memory>(`/api/companions/${selected.id}/memories`,{method:"POST",body:JSON.stringify({...item,source_session_id:sourceSessionId,allow_conflicts:allowConflicts})});
+    setMemories(current=>[saved,...current.filter(memory=>memory.id!==saved.id)]);
+    if(origin==="candidate")setCandidates(current=>current.filter(candidate=>candidate!==item));
+    if(origin==="manual")setMemoryDraft({category:"personal_context",content:"",importance:3});
+    setMemoryReview(null);
+  };
+  const requestMemorySave=async(item:Candidate,sourceSessionId:string|null,origin:"candidate"|"manual")=>{
+    if(!selected)return;
+    setMemoryReviewBusy(true);setError("");
+    try{
+      const check=await api<MemoryCheckResult>(`/api/companions/${selected.id}/memories/check`,{method:"POST",body:JSON.stringify({...item,source_session_id:sourceSessionId})});
+      if(check.matches.length){
+        setMemoryReview({item,matches:check.matches,sourceSessionId,origin});
+        return;
+      }
+      await persistMemory(item,sourceSessionId,origin,false);
+    }catch(e){setError((e as Error).message);}
+    finally{setMemoryReviewBusy(false);}
+  };
+  const saveMemory=async(item:Candidate)=>{
+    const sourceSessionId=session?.companion_id===selected?.id?session.id:null;
+    await requestMemorySave(item,sourceSessionId,"candidate");
+  };
+  const confirmMemoryAsNew=async()=>{
+    if(!memoryReview)return;
+    setMemoryReviewBusy(true);
+    try{await persistMemory(memoryReview.item,memoryReview.sourceSessionId,memoryReview.origin,true);}
+    catch(e){setError((e as Error).message);}
+    finally{setMemoryReviewBusy(false);}
+  };
+  const replaceReviewedMemory=async(match:MemoryMatch)=>{
+    if(!selected||!memoryReview)return;
+    setMemoryReviewBusy(true);
+    try{
+      const updated=await api<Memory>(`/api/companions/${selected.id}/memories/${match.memory_id}`,{method:"PATCH",body:JSON.stringify(memoryReview.item)});
+      setMemories(current=>current.some(item=>item.id===updated.id)?current.map(item=>item.id===updated.id?updated:item):[updated,...current]);
+      if(memoryReview.origin==="candidate")setCandidates(current=>current.filter(item=>item!==memoryReview.item));
+      if(memoryReview.origin==="manual")setMemoryDraft({category:"personal_context",content:"",importance:3});
+      setMemoryReview(null);
+    }catch(e){setError((e as Error).message);}
+    finally{setMemoryReviewBusy(false);}
+  };
   const suggestMemories=async()=>{if(!session)return;setBusy(true);setError("");try{setCandidates(await api<Candidate[]>(`/api/sessions/${session.id}/memory-suggestions`,{method:"POST"}));}catch(e){setError((e as Error).message);}finally{setBusy(false);}};
   const createManualMemory=async(e:FormEvent)=>{
     e.preventDefault();if(!selected||!memoryDraft.content.trim())return;
-    try{
-      const saved=await api<Memory>(`/api/companions/${selected.id}/memories`,{method:"POST",body:JSON.stringify(memoryDraft)});
-      setMemories(items=>[saved,...items]);setMemoryDraft({category:"personal_context",content:"",importance:3});
-    }catch(e){setError((e as Error).message);}
+    await requestMemorySave({...memoryDraft},null,"manual");
   };
+  const memoryLayerLabel=(layer?:string)=>layer==="episodic"?"خاطرات رویدادی":layer==="preference"?"ترجیحات تأییدشده":"دانش ماندگار";
   const beginEditMemory=(memory:Memory)=>{setEditingMemoryId(memory.id);setMemoryDraft({category:memory.category,content:memory.content,importance:memory.importance});};
   const saveEditedMemory=async(id:string)=>{
     if(!selected)return;
