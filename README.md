@@ -20,6 +20,9 @@ Current implementation:
 - Persistent per-session conversation summaries and cross-session context injection
 - Per-companion approved preference profiles and user-reviewed character evolution suggestions
 - Shared relationship timeline context injected into future chats
+- Consistent SQLite ZIP backup with SHA-256 manifest validation and safe restore rollback
+- Local avatar image upload, static serving, replacement, deletion, and media inventory
+- Local backup and restore dashboard with transfer guidance
 - Lightweight local relevance ranking with optional multilingual local vector embeddings
 - Conversation history and resume
 - No public registration or multi-user system
@@ -30,7 +33,7 @@ Current implementation:
 - Python 3.11+
 - Node.js 20 LTS+
 
-## Run the backend
+## Windows quick start\n\n- Run `setup_nazi_ai.bat` once to create the Python environment and install dependencies.\n- Run `start_nazi_ai.bat` to launch the backend, frontend, and open the app.\n\nSee [docs/BACKUP_AND_TRANSFER.md](docs/BACKUP_AND_TRANSFER.md) for backup and computer migration instructions.\n\n## Run the backend
 
 Open PowerShell in the repository:
 
