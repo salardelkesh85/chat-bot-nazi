@@ -22,7 +22,7 @@ def list_local_voices() -> list[dict[str, str]]:
         return []
     voices = []
     for model in sorted(directory.glob("*.onnx")):
-        if model.is_file() and not model.is_symlink():
+        if model.is_file() and not model.is_symlink() and model.with_name(model.name + ".json").is_file():
             voices.append({"id": model.name, "name": model.stem})
     return voices
 
@@ -36,7 +36,7 @@ def synthesize_piper(text: str, voice_model: str) -> str:
 
     directory = voice_directory().resolve()
     model_path = (directory / voice_model).resolve()
-    if model_path.parent != directory or not model_path.is_file():
+    if model_path.parent != directory or not model_path.is_file() or model_path.is_symlink() or not model_path.with_name(model_path.name + ".json").is_file():
         raise LocalTTSUnavailable("مدل صدای انتخاب‌شده در پوشه محلی پیدا نشد.")
 
     executable = shutil.which(settings.voice_tts_executable)
@@ -66,6 +66,7 @@ def synthesize_piper(text: str, voice_model: str) -> str:
             raise RuntimeError(f"تولید صدای محلی ناموفق بود: {detail[:500]}")
         return output_path
     except subprocess.TimeoutExpired as exc:
+        Path(output_path).unlink(missing_ok=True)
         raise RuntimeError("تولید صدا بیش از زمان مجاز طول کشید.") from exc
     except Exception:
         Path(output_path).unlink(missing_ok=True)
