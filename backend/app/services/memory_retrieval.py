@@ -59,11 +59,16 @@ def rank_conversation_messages(messages: list, query: str, limit: int = 6) -> li
         if score >= threshold:
             scored.append((score, message))
 
+    def message_sort_date(message):
+        created_at = getattr(message, "created_at", None)
+        if created_at is None:
+            return datetime.min.replace(tzinfo=timezone.utc)
+        if created_at.tzinfo is None:
+            return created_at.replace(tzinfo=timezone.utc)
+        return created_at
+
     scored.sort(
-        key=lambda item: (
-            item[0],
-            getattr(item[1], "created_at", None) or datetime.min.replace(tzinfo=timezone.utc),
-        ),
+        key=lambda item: (item[0], message_sort_date(item[1])),
         reverse=True,
     )
     return [message for _, message in scored[:max(1, min(limit, 12))]]
