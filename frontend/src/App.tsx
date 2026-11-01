@@ -359,6 +359,7 @@ export default function App(){
     if(origin==="candidate")setCandidates(current=>current.filter(candidate=>candidate!==item));
     if(origin==="manual")setMemoryDraft({category:"personal_context",content:"",importance:3});
     setMemoryReview(null);
+    await loadMemoryIndex(selected);
   };
   const requestMemorySave=async(item:Candidate,sourceSessionId:string|null,origin:"candidate"|"manual")=>{
     if(!selected)return;
@@ -388,11 +389,12 @@ export default function App(){
     if(!selected||!memoryReview)return;
     setMemoryReviewBusy(true);
     try{
-      const updated=await api<Memory>(`/api/companions/${selected.id}/memories/${match.memory_id}`,{method:"PATCH",body:JSON.stringify(memoryReview.item)});
+      const updated=await api<Memory>(`/api/companions/${selected.id}/memories/${match.memory_id}`,{method:"PATCH",body:JSON.stringify({...memoryReview.item,source_session_id:memoryReview.sourceSessionId})});
       setMemories(current=>current.some(item=>item.id===updated.id)?current.map(item=>item.id===updated.id?updated:item):[updated,...current]);
       if(memoryReview.origin==="candidate")setCandidates(current=>current.filter(item=>item!==memoryReview.item));
       if(memoryReview.origin==="manual")setMemoryDraft({category:"personal_context",content:"",importance:3});
       setMemoryReview(null);
+      await loadMemoryIndex(selected);
     }catch(e){setError((e as Error).message);}
     finally{setMemoryReviewBusy(false);}
   };
