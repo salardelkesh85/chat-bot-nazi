@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 from app.providers.openai_compatible import (
     ProviderNotConfigured,
@@ -25,7 +25,7 @@ class LocalProviderTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(provider_is_configured())
 
     async def test_local_completion_omits_authorization_header(self):
-        response = AsyncMock()
+        response = Mock()
         response.raise_for_status.return_value = None
         response.json.return_value = {"choices": [{"message": {"content": "سلام"}}]}
         client = AsyncMock()
