@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlparse
 
 import httpx
 
@@ -13,6 +14,19 @@ class ProviderRequestError(Exception):
     pass
 
 
+def is_local_provider() -> bool:
+    """Allow keyless inference only against a loopback OpenAI-compatible server."""
+    parsed = urlparse(settings.ai_base_url.strip())
+    return (
+        parsed.scheme in {"http", "https"}
+        and parsed.hostname in {"127.0.0.1", "localhost", "::1"}
+    )
+
+
+def provider_is_configured() -> bool:
+    return bool(settings.ai_model.strip()) and bool(settings.ai_api_key.strip() or is_local_provider())
+
+
 def _extract_text(data: dict) -> str:
     answer = data["choices"][0]["message"]["content"]
     if isinstance(answer, list):
@@ -23,11 +37,18 @@ def _extract_text(data: dict) -> str:
 
 
 async def _completion(messages: list[dict[str, str]], temperature: float = 0.85) -> str:
-    if not settings.ai_api_key or not settings.ai_model:
-        raise ProviderNotConfigured("برای فعال‌کردن هوش مصنوعی، AI_API_KEY و AI_MODEL را در backend/.env تنظیم کن.")
+    if not settings.ai_model.strip():
+        raise ProviderNotConfigured("نام مدل را در AI_MODEL داخل فایل backend/.env تنظیم کن.")
+    if not settings.ai_api_key.strip() and not is_local_provider():
+        raise ProviderNotConfigured(
+            "برای سرویس ابری AI_API_KEY و AI_MODEL را در backend/.env تنظیم کن؛ "
+            "برای اجرای بدون کلید، یک سرویس محلی مانند Ollama را روی 127.0.0.1 اجرا کن."
+        )
 
     endpoint = f"{settings.ai_base_url.rstrip('/')}/chat/completions"
-    headers = {"Authorization": f"Bearer {settings.ai_api_key}", "Content-Type": "application/json"}
+    headers = {"Content-Type": "application/json"}
+    if settings.ai_api_key.strip():
+        headers["Authorization"] = f"Bearer {settings.ai_api_key.strip()}"
     payload = {"model": settings.ai_model, "messages": messages, "temperature": temperature}
 
     try:
