@@ -40,7 +40,7 @@ Current implementation:
 ## Windows quick start
 
 1. Install Python 3.11/3.12 and Node.js 20/22 LTS.
-2. For local AI, install Ollama from https://ollama.com/download/windows and run `ollama pull qwen2.5:7b` in a terminal. This model needs several GB of disk/RAM; choose a smaller model if your laptop has limited memory.
+2. For local AI, install Ollama from https://ollama.com/download/windows and run `ollama pull qwen2.5:3b` in a terminal. This is a lighter starter model; a larger model can be selected later if the laptop has enough RAM.
 3. Run `setup_nazi_ai.bat` once.
 4. Run `start_nazi_ai.bat`. It waits for both services to pass health checks before opening the app.
 5. Use `stop_nazi_ai.bat` to stop the local services when finished.
