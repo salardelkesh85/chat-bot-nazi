@@ -13,10 +13,28 @@ if errorlevel 1 (
   echo Install Python 3.11 or 3.12 from python.org and enable Add Python to PATH.
   goto failed
 )
-py -3 -c "import sys; raise SystemExit(0 if (3,11) <= sys.version_info[:2] < (3,13) else 1)" >nul 2>&1
-if errorlevel 1 (
-  echo [ERROR] Install Python 3.11 or 3.12. Python 3.13 is not validated yet.
+set "PYTHON_LAUNCHER="
+py -3.12 -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3,12) else 1)" >nul 2>&1
+if not errorlevel 1 set "PYTHON_LAUNCHER=py -3.12"
+if not defined PYTHON_LAUNCHER (
+  py -3.11 -c "import sys; raise SystemExit(0 if sys.version_info[:2] == (3,11) else 1)" >nul 2>&1
+  if not errorlevel 1 set "PYTHON_LAUNCHER=py -3.11"
+)
+if not defined PYTHON_LAUNCHER (
+  echo [ERROR] Python 3.11 or 3.12 was not found.
+  echo Detected Python installations:
+  py -0p
   goto failed
+)
+echo Using %PYTHON_LAUNCHER% for the backend environment.
+
+if exist "backend\.venv\Scripts\python.exe" (
+  "backend\.venv\Scripts\python.exe" -c "import sys; raise SystemExit(0 if (3,11) <= sys.version_info[:2] < (3,13) else 1)" >nul 2>&1
+  if errorlevel 1 (
+    echo Removing an old virtual environment with an unsupported Python version...
+    rmdir /s /q "backend\.venv"
+    if exist "backend\.venv" goto failed
+  )
 )
 
 where node >nul 2>&1
@@ -32,7 +50,7 @@ if errorlevel 1 (
 
 if not exist "backend\.venv\Scripts\python.exe" (
   echo [1/5] Creating Python virtual environment...
-  py -3 -m venv backend\.venv
+  %PYTHON_LAUNCHER% -m venv backend\.venv
   if errorlevel 1 goto failed
 )
 
