@@ -33,13 +33,18 @@ Current implementation:
 ## Requirements
 
 - Windows 10/11
-- Python 3.11+
-- Node.js 20 LTS+
+- Python 3.11 or 3.12 (recommended)
+- Node.js 20 LTS or 22 LTS
+- Ollama (optional, recommended for fully local chat)
 
 ## Windows quick start
 
-- Run `setup_nazi_ai.bat` once to create the Python environment and install dependencies.
-- Run `start_nazi_ai.bat` to launch the backend, frontend, and open the app.
+1. Install Python 3.11/3.12 and Node.js 20/22 LTS.
+2. For local AI, install Ollama from https://ollama.com/download/windows and run `ollama pull qwen2.5:7b` in a terminal. This model needs several GB of disk/RAM; choose a smaller model if your laptop has limited memory.
+3. Run `setup_nazi_ai.bat` once.
+4. Run `start_nazi_ai.bat`. It waits for both services to pass health checks before opening the app.
+5. Use `stop_nazi_ai.bat` to stop the local services when finished.
+6. If Ollama is not installed, the dashboard and local database still run; chat generation remains unavailable until a provider is configured.
 
 See [docs/BACKUP_AND_TRANSFER.md](docs/BACKUP_AND_TRANSFER.md) for backup and computer migration instructions.
 
@@ -85,16 +90,12 @@ Install `backend/requirements-voice.txt` and follow [docs/LOCAL_VOICE_SETUP.md](
 
 Install Piper and a compatible local ONNX voice model, then follow [docs/LOCAL_TTS_SETUP.md](docs/LOCAL_TTS_SETUP.md). Each companion can store its own selected local voice. No voice model is bundled or downloaded at runtime.
 
+## Local AI with Ollama
+
+The default Windows environment example is configured for Ollama at `http://127.0.0.1:11434/v1`, with no API key. Install Ollama, pull the model named by `AI_MODEL` in `backend/.env`, and keep the Ollama service running while chatting. For lower-memory laptops, choose a smaller Ollama model and update `AI_MODEL`. The app can also connect to a cloud OpenAI-compatible provider; in that case, prompts and selected memories are sent to that provider.
+
 ## Local semantic memory
 
 The backend supports optional on-device multilingual embeddings. Install `backend/requirements-embeddings.txt` and place the model files in `backend/models/paraphrase-multilingual-MiniLM-L12-v2`. The app uses local-only model loading and falls back to keyword retrieval if the model is not installed. See [docs/SEMANTIC_MEMORY.md](docs/SEMANTIC_MEMORY.md). The first-time model acquisition is a separate manual step; model weights are excluded from Git.
-
-## Planned modules
-
-1. Companion/personality creator and structured Personality Studio
-2. Chat and conversation history
-3. Long-term memory and local semantic/lexical retrieval
-4. AI provider adapters
-5. Local settings, export, and backup
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/MEMORY_SYSTEM.md](docs/MEMORY_SYSTEM.md), and [docs/ROADMAP.md](docs/ROADMAP.md).
