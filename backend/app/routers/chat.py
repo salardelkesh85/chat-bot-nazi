@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.database import SessionLocal
 from app.models import ChatMessage, Companion, CompanionMemory, CompanionEmotionalState, ConversationSession, ConversationSummary, CompanionPreference, RelationshipEvent
-from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates, summarize_conversation, extract_companion_insights
+from app.providers.openai_compatible import ProviderNotConfigured, ProviderRequestError, generate_reply, extract_memory_candidates, summarize_conversation, extract_companion_insights, provider_is_configured
 from app.schemas import MemoryCandidate, MessageRead, ProviderStatus, SendMessage, CompanionInsightSuggestions
 from app.services.memory_retrieval import rank_conversation_messages, rank_memories
 from app.services.semantic_memory import embed_text
@@ -192,7 +192,7 @@ async def send_message(session_id: str, payload: SendMessage, db: Session = Depe
 
 @router.get("/settings/provider", response_model=ProviderStatus)
 def provider_status():
-    return ProviderStatus(configured=bool(settings.ai_api_key and settings.ai_model), provider=settings.ai_provider or "OpenAI-compatible", model=settings.ai_model or "")
+    return ProviderStatus(configured=provider_is_configured(), provider=settings.ai_provider or ("Local OpenAI-compatible" if not settings.ai_api_key else "OpenAI-compatible"), model=settings.ai_model or "")
 
 
 
