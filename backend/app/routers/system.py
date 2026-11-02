@@ -5,6 +5,8 @@ import shutil
 import sqlite3
 import tempfile
 import uuid
+import sys
+import platform
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -18,6 +20,9 @@ from app import models  # noqa: F401
 from app.core.storage import AVATAR_DIRECTORY, BACKUP_DIRECTORY, DATABASE_FILE, MEDIA_DIRECTORY
 from app.database import Base, SessionLocal, engine, ensure_sqlite_compatibility
 from app.models import Companion
+from app.core.config import settings
+from app.providers.openai_compatible import provider_is_configured
+from app.services.semantic_memory import semantic_available
 from app.services.backup import (
     MAX_ARCHIVE_BYTES,
     BackupValidationError,
@@ -78,6 +83,28 @@ def local_asset_inventory(db: Session = Depends(get_db)):
             "size_bytes": size,
         })
     return {"items": items, "total": len(items)}
+
+
+@router.get("/diagnostics")
+def local_diagnostics():
+    return {
+        "app": "Nazi AI",
+        "mode": "local",
+        "python_version": platform.python_version(),
+        "platform": platform.platform(),
+        "database": "sqlite",
+        "database_path": str(DATABASE_FILE),
+        "database_exists": DATABASE_FILE.is_file(),
+        "data_directory_writable": os.access(DATABASE_FILE.parent, os.W_OK),
+        "frontend_origin": settings.frontend_origin,
+        "ai_provider_configured": provider_is_configured(),
+        "ai_model": settings.ai_model or None,
+        "ai_base_url": settings.ai_base_url,
+        "local_ai_endpoint": settings.ai_base_url.startswith(("http://127.0.0.1", "http://localhost")),
+        "semantic_memory_available": semantic_available(),
+        "voice_stt_model_exists": Path(settings.voice_stt_model_path).is_dir(),
+        "voice_tts_executable": shutil.which(settings.voice_tts_executable) is not None,
+    }
 
 
 @router.get("/status")
